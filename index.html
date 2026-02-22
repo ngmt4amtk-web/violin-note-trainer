@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>音程ドリル</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{
+  height:100%;
+  font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;
+  background:#0d0f1a;color:#fff;overflow:hidden;
+  -webkit-user-select:none;user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+#app{display:flex;flex-direction:column;height:100%;padding-top:env(safe-area-inset-top)}
+.screen{display:none;flex-direction:column;flex:1;min-height:0}
+.screen.visible{display:flex}
+
+/* Start */
+#startScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:40px 24px}
+.start-title{color:#4f8cff;font-size:20px;font-weight:700;margin-bottom:6px}
+.start-sub{color:#556;font-size:12px;margin-bottom:28px;text-align:center;line-height:1.6}
+.start-btn{
+  width:120px;height:120px;border-radius:60px;
+  background:#131630;border:2px solid #4f8cff40;
+  color:#4f8cff;font-size:15px;font-weight:600;
+  cursor:pointer;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:8px;
+  transition:all .15s;font-family:inherit;
+}
+.start-btn:active{transform:scale(.93);border-color:#4f8cff}
+.start-btn svg{width:36px;height:36px}
+.start-hint{color:#445;font-size:12px;margin-top:20px}
+.error-msg{color:#e74c3c;font-size:13px;margin-top:16px;text-align:center;line-height:1.6}
+
+/* Header */
+.header{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;flex-shrink:0}
+.header .h-title{font-size:15px;font-weight:700;color:#778}
+.header .h-btn{
+  background:none;border:none;color:#4f8cff;font-size:13px;font-weight:600;
+  cursor:pointer;font-family:inherit;padding:6px 12px;
+}
+
+/* Setup */
+.mode-toggle{
+  display:flex;gap:0;margin:0 16px 12px;
+  background:#12152a;border-radius:10px;overflow:hidden;border:1px solid #1e2140;
+}
+.mode-opt{
+  flex:1;padding:10px 4px;text-align:center;
+  font-size:13px;font-weight:600;color:#445;
+  background:none;border:none;cursor:pointer;font-family:inherit;transition:all .15s;
+}
+.mode-opt.active{color:#4f8cff;background:#4f8cff18}
+.mode-opt .mode-desc{display:block;font-size:9px;font-weight:400;opacity:.6;margin-top:2px}
+
+.setup-content{flex:1;overflow-y:auto;padding:0 16px 100px;-webkit-overflow-scrolling:touch}
+.oct-label{font-size:11px;color:#445;font-weight:600;margin:12px 0 6px;letter-spacing:.5px}
+.oct-label:first-child{margin-top:0}
+.note-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.note-btn{
+  padding:8px 2px;border-radius:8px;
+  background:#12152a;border:1.5px solid #1e2140;
+  color:#667;cursor:pointer;text-align:center;
+  font-family:inherit;transition:all .12s;
+}
+.note-btn:active{transform:scale(.93)}
+.note-btn .nb-kana{display:block;font-size:13px;font-weight:700;line-height:1.2}
+.note-btn .nb-oct{display:block;font-size:9px;opacity:.5;margin-top:1px}
+
+/* Selected notes */
+.sel-area{
+  position:fixed;bottom:0;left:0;right:0;
+  background:#0d0f1aee;backdrop-filter:blur(12px);
+  padding:10px 16px env(safe-area-inset-bottom,10px);
+  border-top:1px solid #1e2140;z-index:10;
+}
+.sel-row{display:flex;align-items:center;gap:6px;margin-bottom:8px;min-height:32px;flex-wrap:wrap}
+.sel-chip{
+  display:inline-flex;align-items:center;gap:3px;
+  padding:4px 10px;border-radius:6px;
+  background:#1e2140;font-size:12px;font-weight:600;color:#aab;
+  cursor:pointer;transition:all .12s;
+}
+.sel-chip:active{transform:scale(.9)}
+.sel-chip .chip-x{color:#556;font-size:10px}
+.sel-bottom{display:flex;align-items:center;justify-content:space-between}
+.sel-count{font-size:12px;color:#556}
+.sel-count em{font-style:normal;color:#4f8cff}
+.sel-actions{display:flex;gap:8px}
+.sel-clear{
+  background:none;border:1px solid #333;color:#556;
+  padding:8px 14px;border-radius:8px;font-size:12px;
+  font-weight:600;cursor:pointer;font-family:inherit;
+}
+.sel-start{
+  background:#4f8cff;border:none;color:#fff;
+  padding:8px 20px;border-radius:8px;font-size:14px;
+  font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;
+}
+.sel-start:disabled{opacity:.3;cursor:default}
+
+/* Practice */
+.prac-progress{display:flex;align-items:center;gap:8px;padding:0 16px;margin-bottom:8px}
+.prac-progress .pp-text{font-size:12px;color:#556;font-weight:600;white-space:nowrap}
+.pp-bar{flex:1;height:4px;background:#1e2140;border-radius:2px;overflow:hidden}
+.pp-fill{height:100%;background:#4f8cff;border-radius:2px;transition:width .3s}
+
+.seq-dots{display:flex;gap:6px;padding:0 16px;margin-bottom:10px;overflow-x:auto;flex-shrink:0}
+.seq-dot{
+  display:flex;flex-direction:column;align-items:center;gap:2px;min-width:36px;flex-shrink:0;
+}
+.seq-dot .dot-circle{
+  width:20px;height:20px;border-radius:10px;border:2px solid #2a2d48;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;transition:all .3s;
+}
+.seq-dot.done .dot-circle{background:#2ecc71;border-color:#2ecc71;color:#fff}
+.seq-dot.current .dot-circle{background:#4f8cff;border-color:#4f8cff;color:#fff;transform:scale(1.2)}
+.seq-dot .dot-name{font-size:9px;color:#445;white-space:nowrap}
+.seq-dot.current .dot-name{color:#4f8cff;font-weight:600}
+
+.prac-content{flex:1;overflow-y:auto;padding:0 16px 16px;-webkit-overflow-scrolling:touch}
+.card{background:#161929;border-radius:14px;padding:16px;margin-bottom:8px}
+
+.target-display{text-align:center}
+.target-kana{font-size:52px;font-weight:800;line-height:1.1}
+.target-info{font-size:13px;color:#556;margin-top:4px}
+.target-range{font-size:11px;color:#445;margin-top:6px}
+.target-range em{font-style:normal;color:#667}
+
+#staffCanvas{display:block;margin:8px auto 0}
+#zoneCanvas{display:block;margin:0 auto}
+
+.detect-display{text-align:center;margin-top:8px}
+.detect-hz{font-size:36px;font-weight:800;line-height:1}
+.detect-pos{font-size:18px;font-weight:700;margin-top:6px;min-height:26px}
+.detect-cents{font-size:12px;color:#556;margin-top:4px}
+.pos-low{color:#f5a623}
+.pos-piano{color:#2ecc71}
+.pos-high{color:#4f8cff}
+.pos-out{color:#e74c3c}
+.pos-silent{color:#334}
+
+/* Auto progress */
+.auto-bar-wrap{margin-top:12px;text-align:center}
+.auto-bar{height:6px;background:#1e2140;border-radius:3px;overflow:hidden;margin-bottom:6px}
+.auto-fill{height:100%;background:#2ecc71;border-radius:3px;transition:width .1s}
+.auto-label{font-size:10px;color:#445}
+
+/* Confirm button */
+.confirm-btn{
+  display:block;width:100%;margin-top:12px;padding:14px;
+  border-radius:10px;font-size:16px;font-weight:700;
+  border:none;cursor:pointer;font-family:inherit;transition:all .15s;
+}
+.confirm-btn.ready{background:#2ecc71;color:#fff}
+.confirm-btn.waiting{background:#1e2140;color:#334;cursor:default}
+
+.prac-stop{
+  display:block;width:100%;margin-top:8px;padding:10px;
+  border-radius:10px;font-size:13px;font-weight:600;
+  background:none;border:1px solid #2a2d48;color:#556;
+  cursor:pointer;font-family:inherit;
+}
+
+/* Result */
+#resultScreen .result-content{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;
+}
+.result-icon{font-size:64px;margin-bottom:16px}
+.result-title{font-size:24px;font-weight:800;color:#2ecc71;margin-bottom:8px}
+.result-sub{font-size:14px;color:#667;margin-bottom:32px}
+.result-actions{display:flex;gap:12px}
+.result-btn{
+  padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;
+  cursor:pointer;font-family:inherit;border:none;transition:all .15s;
+}
+.result-btn.primary{background:#4f8cff;color:#fff}
+.result-btn.secondary{background:#1e2140;color:#778;border:1px solid #2a2d48}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Start Screen -->
+  <div id="startScreen" class="screen visible">
+    <div class="start-title">音程ドリル</div>
+    <div class="start-sub">選んだ音をマイクで聴き取り<br>3つの音律の正解範囲で判定</div>
+    <button class="start-btn" id="startBtn">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" fill="#4f8cff"/>
+        <path d="M17.5 11c0 2.76-2.24 5-5.5 5s-5.5-2.24-5.5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-1.5z" fill="#4f8cff"/>
+      </svg>
+      スタート
+    </button>
+    <p class="start-hint">マイクへのアクセスを許可してください</p>
+    <p class="error-msg" id="errorMsg" style="display:none"></p>
+  </div>
+
+  <!-- Setup Screen -->
+  <div id="setupScreen" class="screen">
+    <div class="header">
+      <span class="h-title">音を選択</span>
+      <span class="h-title" style="font-size:11px;color:#445">4〜8個（同一音OK）</span>
+    </div>
+
+    <div class="mode-toggle">
+      <button class="mode-opt active" data-mode="auto">
+        オート
+        <span class="mode-desc">正解で自動的に次へ</span>
+      </button>
+      <button class="mode-opt" data-mode="confirm">
+        確認
+        <span class="mode-desc">自分で次へボタン</span>
+      </button>
+    </div>
+
+    <div class="setup-content" id="noteGridArea"></div>
+
+    <div class="sel-area" id="selArea">
+      <div class="sel-row" id="selRow"></div>
+      <div class="sel-bottom">
+        <span class="sel-count" id="selCount"><em>0</em>/8</span>
+        <div class="sel-actions">
+          <button class="sel-clear" id="selClear">クリア</button>
+          <button class="sel-start" id="selStart" disabled>練習開始</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Practice Screen -->
+  <div id="practiceScreen" class="screen">
+    <div class="header">
+      <span class="h-title">音程ドリル</span>
+      <button class="h-btn" id="pracStop">中止</button>
+    </div>
+
+    <div class="prac-progress">
+      <span class="pp-text" id="ppText">1/6</span>
+      <div class="pp-bar"><div class="pp-fill" id="ppFill"></div></div>
+    </div>
+
+    <div class="seq-dots" id="seqDots"></div>
+
+    <div class="prac-content">
+      <div class="card">
+        <div class="target-display">
+          <div class="target-kana" id="targetKana">ラ</div>
+          <div class="target-info" id="targetInfo">A4 · 442.0 Hz</div>
+          <div class="target-range" id="targetRange">範囲: <em>439.5 - 444.6 Hz</em></div>
+        </div>
+        <canvas id="staffCanvas"></canvas>
+      </div>
+
+      <div class="card">
+        <canvas id="zoneCanvas"></canvas>
+        <div class="detect-display">
+          <div class="detect-hz pos-silent" id="detectHz">---</div>
+          <div class="detect-pos pos-silent" id="detectPos">音を出してください</div>
+          <div class="detect-cents" id="detectCents"></div>
+        </div>
+
+        <div class="auto-bar-wrap" id="autoWrap">
+          <div class="auto-bar"><div class="auto-fill" id="autoFill"></div></div>
+          <div class="auto-label">正解範囲を1.5秒キープで次へ</div>
+        </div>
+
+        <button class="confirm-btn waiting" id="confirmBtn" style="display:none">
+          次へ
+        </button>
+      </div>
+
+      <button class="prac-stop" id="pracStop2">中止して選択画面へ</button>
+    </div>
+  </div>
+
+  <!-- Result Screen -->
+  <div id="resultScreen" class="screen">
+    <div class="result-content">
+      <div class="result-icon">&#10004;&#65039;</div>
+      <div class="result-title">完了！</div>
+      <div class="result-sub" id="resultSub">すべての音をクリアしました</div>
+      <div class="result-actions">
+        <button class="result-btn secondary" id="resultBack">選択画面へ</button>
+        <button class="result-btn primary" id="resultRetry">もう一度</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+'use strict';
+
+// ===== CONSTANTS =====
+var A4 = 442;
+var MIDI_MIN = 55; // G3
+var MIDI_MAX = 91; // G6
+var AUTO_HOLD_MS = 1500;
+var RANGE_BUFFER = 5; // cents
+
+var KANA = ['ド','ド♯','レ','レ♯','ミ','ファ','ファ♯','ソ','ソ♯','ラ','ラ♯','シ'];
+var NAMES = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+var STAFF_BASE = [0,0,1,1,2,3,3,4,4,5,5,6];
+var IS_SHARP = [false,true,false,true,false,false,true,false,true,false,true,false];
+
+// Open strings (MIDI)
+var OPEN_MIDS = [55,62,69,76]; // G3,D4,A4,E5
+var STR_COLORS = ['#4f8cff','#f5a623','#e74c3c','#2ecc71'];
+
+// Interval data: ji/pyth = cents offset from ET
+var INTERVALS = [
+  {name:'完全1度',   ji:  0, pyth:  0},
+  {name:'短2度',     ji: 12, pyth:-10},
+  {name:'長2度',     ji:  4, pyth:  4},
+  {name:'短3度',     ji: 16, pyth: -6},
+  {name:'長3度',     ji:-14, pyth:  8},
+  {name:'完全4度',   ji: -2, pyth: -2},
+  {name:'増4度/減5度', ji:-10, pyth: 12},
+  {name:'完全5度',   ji:  2, pyth:  2},
+  {name:'短6度',     ji: 14, pyth: -8},
+  {name:'長6度',     ji:-16, pyth:  6},
+  {name:'短7度',     ji: -4, pyth: -4},
+  {name:'長7度',     ji:-12, pyth: 10}
+];
+
+// ===== HELPERS =====
+function etFreq(midi){ return A4 * Math.pow(2, (midi - 69) / 12); }
+function centsFrom(f, t){ return 1200 * Math.log2(f / t); }
+
+function midiInfo(midi){
+  var pc = ((midi % 12) + 12) % 12;
+  var oct = Math.floor(midi / 12) - 1;
+  return { midi:midi, pc:pc, oct:oct, kana:KANA[pc], name:NAMES[pc], sharp:IS_SHARP[pc], staffBase:STAFF_BASE[pc], freq:etFreq(midi) };
+}
+
+function staffPos(midi){
+  var pc = ((midi % 12) + 12) % 12;
+  var oct = Math.floor(midi / 12) - 1;
+  return (oct - 4) * 7 + STAFF_BASE[pc] - 2;
+}
+
+function getStringIdx(midi){
+  for(var i = OPEN_MIDS.length - 1; i >= 0; i--){
+    if(midi >= OPEN_MIDS[i]) return i;
+  }
+  return 0;
+}
+
+function getStringColor(midi){ return STR_COLORS[getStringIdx(midi)]; }
+
+function getInterval(midi){
+  var ref = OPEN_MIDS[getStringIdx(midi)];
+  return (midi - ref) % 12;
+}
+
+function getRange(midi){
+  var iv = getInterval(midi);
+  var data = INTERVALS[iv];
+  var lo = Math.min(0, data.ji, data.pyth) - RANGE_BUFFER;
+  var hi = Math.max(0, data.ji, data.pyth) + RANGE_BUFFER;
+  var et = etFreq(midi);
+  return {
+    lo: lo, hi: hi,
+    loHz: et * Math.pow(2, lo / 1200),
+    hiHz: et * Math.pow(2, hi / 1200),
+    etHz: et, ji: data.ji, pyth: data.pyth,
+    ivName: data.name
+  };
+}
+
+// ===== STATE =====
+var selectedNotes = [];
+var practiceMode = 'auto';
+var currentIdx = 0;
+var audioCtx = null, analyser = null, audioBuf = null;
+var isRunning = false;
+var smoothPitch = 0, silCnt = 0;
+var holdStart = 0, isInRange = false;
+var currentScreen = 'start';
+var zoneCtx = null, staffCtx = null, zW = 0, zH = 70, sW = 0, sH = 140;
+
+// ===== YIN =====
+function yin(buf, sr){
+  var th = 0.15, half = Math.floor(buf.length / 2);
+  var tMin = Math.floor(sr / 2800), tMax = Math.min(Math.ceil(sr / 170), half);
+  var diff = new Float32Array(half);
+  for(var t = 0; t < tMax; t++){
+    var s = 0;
+    for(var i = 0; i < half; i++){ var d = buf[i] - buf[i+t]; s += d * d; }
+    diff[t] = s;
+  }
+  var cm = new Float32Array(half); cm[0] = 1; var run = 0;
+  for(var t = 1; t < tMax; t++){ run += diff[t]; cm[t] = diff[t] * t / run; }
+  var est = -1;
+  for(var t = tMin; t < tMax; t++){
+    if(cm[t] < th){
+      while(t + 1 < tMax && cm[t+1] < cm[t]) t++;
+      est = t; break;
+    }
+  }
+  if(est < 0) return -1;
+  var x0 = est > 0 ? est - 1 : est, x2 = est + 1 < half ? est + 1 : est;
+  if(x0 === est) var bt = cm[est] <= cm[x2] ? est : x2;
+  else if(x2 === est) var bt = cm[est] <= cm[x0] ? est : x0;
+  else { var a = cm[x0], b = cm[est], c = cm[x2]; var bt = est + (c - a) / (2 * (2*b - c - a)); }
+  return sr / bt;
+}
+function rms(buf){ var s = 0; for(var i = 0; i < buf.length; i++) s += buf[i]*buf[i]; return Math.sqrt(s/buf.length); }
+
+// ===== NOTE GRID =====
+function buildNoteGrid(){
+  var area = document.getElementById('noteGridArea');
+  var groups = [
+    { label: 'G弦 — 第3オクターブ', start: 55, end: 59 },
+    { label: 'D弦 — 第4オクターブ', start: 60, end: 67 },
+    { label: 'A弦 — 第4オクターブ', start: 68, end: 71 },
+    { label: 'A弦 — 第5オクターブ', start: 72, end: 75 },
+    { label: 'E弦 — 第5オクターブ', start: 76, end: 83 },
+    { label: '高音域 — 第6オクターブ', start: 84, end: 91 }
+  ];
+  var html = '';
+  for(var g = 0; g < groups.length; g++){
+    var gr = groups[g];
+    html += '<div class="oct-label">' + gr.label + '</div><div class="note-grid">';
+    for(var m = gr.start; m <= gr.end; m++){
+      var info = midiInfo(m);
+      var col = getStringColor(m);
+      html += '<button class="note-btn" data-midi="' + m + '" style="border-color:' + col + '40">'
+        + '<span class="nb-kana" style="color:' + col + '">' + info.kana + '</span>'
+        + '<span class="nb-oct">' + info.name + info.oct + '</span></button>';
+    }
+    html += '</div>';
+  }
+  area.innerHTML = html;
+  area.querySelectorAll('.note-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){ addNote(parseInt(btn.dataset.midi)); });
+  });
+}
+
+function addNote(midi){
+  if(selectedNotes.length >= 8) return;
+  selectedNotes.push(midi);
+  renderSelected();
+}
+
+function removeNote(idx){
+  selectedNotes.splice(idx, 1);
+  renderSelected();
+}
+
+function renderSelected(){
+  var row = document.getElementById('selRow');
+  var html = '';
+  for(var i = 0; i < selectedNotes.length; i++){
+    var info = midiInfo(selectedNotes[i]);
+    var col = getStringColor(selectedNotes[i]);
+    html += '<span class="sel-chip" data-idx="' + i + '" style="border-left:3px solid ' + col + '">'
+      + info.kana + info.oct + ' <span class="chip-x">×</span></span>';
+  }
+  row.innerHTML = html;
+  row.querySelectorAll('.sel-chip').forEach(function(chip){
+    chip.addEventListener('click', function(){ removeNote(parseInt(chip.dataset.idx)); });
+  });
+  var n = selectedNotes.length;
+  document.getElementById('selCount').innerHTML = '<em>' + n + '</em>/8';
+  document.getElementById('selStart').disabled = n < 4;
+}
+
+// ===== CANVAS =====
+function dprCanvas(canvas, w, h){
+  var dpr = window.devicePixelRatio || 1;
+  canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+  canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+  var ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr); return ctx;
+}
+
+// ===== STAFF =====
+function setupStaff(){
+  var c = document.getElementById('staffCanvas'); if(!c) return;
+  var pw = c.parentElement.clientWidth - 32;
+  sW = Math.max(pw, 200); sH = 140;
+  staffCtx = dprCanvas(c, sW, sH);
+}
+
+function drawStaff(midi){
+  var ctx = staffCtx; if(!ctx) return;
+  ctx.clearRect(0, 0, sW, sH);
+  var LS = 12, HS = LS / 2;
+  var sl = 44, sr = sW - 16, bly = sH * 0.68;
+
+  ctx.strokeStyle = '#2a2d44'; ctx.lineWidth = 1;
+  for(var i = 0; i < 5; i++){
+    var y = bly - i * LS;
+    ctx.beginPath(); ctx.moveTo(sl, y); ctx.lineTo(sr, y); ctx.stroke();
+  }
+
+  // Clef
+  var fs = LS * 5.8;
+  ctx.save();
+  ctx.font = fs + 'px Times,serif'; ctx.fillStyle = '#3a4060'; ctx.textBaseline = 'alphabetic';
+  var gLineY = bly - LS;
+  var tx = sl + 4, ty = gLineY + fs * 0.36;
+  var m = ctx.measureText('\uD834\uDD1E');
+  if(m.width > 2) ctx.fillText('\uD834\uDD1E', tx, ty);
+  else { ctx.font = 'bold ' + (LS*1.5) + 'px serif'; ctx.fillStyle = '#334'; ctx.textBaseline = 'middle'; ctx.textAlign = 'center'; ctx.fillText('G', sl + 16, gLineY); }
+  ctx.restore();
+
+  if(midi < 0) return;
+  var sp = staffPos(midi);
+  var info = midiInfo(midi);
+  var nx = (sl + sr) / 2 + 8;
+  var ny = bly - sp * HS;
+  var nr = HS * 1.3;
+
+  // Ledger lines
+  ctx.strokeStyle = '#3a3d55'; ctx.lineWidth = 1;
+  if(sp <= -2){ for(var p = -2; p >= sp; p -= 2){ var ly = bly - p * HS; ctx.beginPath(); ctx.moveTo(nx-nr*2, ly); ctx.lineTo(nx+nr*2, ly); ctx.stroke(); } }
+  if(sp >= 10){ for(var p = 10; p <= sp; p += 2){ var ly = bly - p * HS; ctx.beginPath(); ctx.moveTo(nx-nr*2, ly); ctx.lineTo(nx+nr*2, ly); ctx.stroke(); } }
+
+  // Accidental
+  if(info.sharp){
+    ctx.fillStyle = '#aab'; ctx.font = 'bold ' + (LS*1.1) + 'px -apple-system,sans-serif';
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.fillText('♯', nx - nr - 5, ny + 1);
+  }
+
+  // Note head
+  var col = getStringColor(midi);
+  ctx.save(); ctx.translate(nx, ny); ctx.rotate(-0.3);
+  ctx.beginPath(); ctx.ellipse(0, 0, nr, nr * 0.72, 0, 0, Math.PI * 2);
+  ctx.fillStyle = col; ctx.fill(); ctx.restore();
+
+  // Stem
+  var sh = LS * 3.5;
+  ctx.strokeStyle = col; ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  if(sp < 4){ ctx.moveTo(nx + nr*0.9, ny); ctx.lineTo(nx + nr*0.9, ny - sh); }
+  else { ctx.moveTo(nx - nr*0.9, ny); ctx.lineTo(nx - nr*0.9, ny + sh); }
+  ctx.stroke();
+}
+
+// ===== ZONE BAR =====
+function setupZone(){
+  var c = document.getElementById('zoneCanvas'); if(!c) return;
+  var pw = c.parentElement.clientWidth - 32;
+  zW = Math.max(pw, 200); zH = 70;
+  zoneCtx = dprCanvas(c, zW, zH);
+}
+
+function drawZone(midi, detectedCents){
+  var ctx = zoneCtx; if(!ctx) return;
+  var w = zW, h = zH;
+  ctx.clearRect(0, 0, w, h);
+
+  var mx = 12, ml = mx, mr = w - mx, mw = mr - ml;
+  var cy = h * 0.42, bh = 4, cx = ml + mw / 2;
+  var displayRange = 40; // ±40 cents
+
+  var range = getRange(midi);
+
+  // Bar background
+  ctx.fillStyle = '#1a1d32';
+  ctx.beginPath();
+  if(ctx.roundRect) ctx.roundRect(ml, cy - bh/2, mw, bh, [bh/2]);
+  else { ctx.rect(ml, cy - bh/2, mw, bh); }
+  ctx.fill();
+
+  // Acceptable range highlight
+  var zLoX = cx + (range.lo / displayRange) * (mw / 2);
+  var zHiX = cx + (range.hi / displayRange) * (mw / 2);
+  ctx.fillStyle = '#2ecc7120';
+  ctx.beginPath();
+  if(ctx.roundRect) ctx.roundRect(zLoX, cy - 18, zHiX - zLoX, 36, [4]);
+  else ctx.rect(zLoX, cy - 18, zHiX - zLoX, 36);
+  ctx.fill();
+  ctx.strokeStyle = '#2ecc7140'; ctx.lineWidth = 1;
+  ctx.beginPath();
+  if(ctx.roundRect) ctx.roundRect(zLoX, cy - 18, zHiX - zLoX, 36, [4]);
+  else ctx.rect(zLoX, cy - 18, zHiX - zLoX, 36);
+  ctx.stroke();
+
+  // Reference markers
+  var refs = [
+    { off: range.ji, label: '純正律', col: '#f5a623' },
+    { off: 0, label: 'ET', col: '#778' },
+    { off: range.pyth, label: 'ピタゴラス', col: '#4f8cff' }
+  ];
+  for(var i = 0; i < refs.length; i++){
+    var r = refs[i];
+    var rx = cx + (r.off / displayRange) * (mw / 2);
+    ctx.strokeStyle = r.col; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.7;
+    ctx.beginPath(); ctx.moveTo(rx, cy - 14); ctx.lineTo(rx, cy + 14); ctx.stroke();
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = r.col; ctx.font = '9px -apple-system,sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText(r.label, rx, cy + 17);
+    ctx.globalAlpha = 1;
+  }
+
+  // Tick marks
+  for(var t = -40; t <= 40; t += 10){
+    var tx = ml + mw * (t + displayRange) / (displayRange * 2);
+    ctx.strokeStyle = t === 0 ? '#334' : '#1e2138'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(tx, cy - 3); ctx.lineTo(tx, cy + 3); ctx.stroke();
+  }
+
+  // Edge labels
+  ctx.fillStyle = '#334'; ctx.font = '9px -apple-system,sans-serif'; ctx.textBaseline = 'bottom';
+  ctx.textAlign = 'left'; ctx.fillText('♭ 低', ml, h - 2);
+  ctx.textAlign = 'right'; ctx.fillText('♯ 高', mr, h - 2);
+
+  // Detected pitch dot
+  if(detectedCents !== null){
+    var cl = Math.max(-displayRange, Math.min(displayRange, detectedCents));
+    var ix = cx + (cl / displayRange) * (mw / 2);
+    var inRange = detectedCents >= range.lo && detectedCents <= range.hi;
+    var col = inRange ? '#2ecc71' : '#e74c3c';
+
+    // Glow
+    var g = ctx.createRadialGradient(ix, cy, 0, ix, cy, 16);
+    g.addColorStop(0, col + '55'); g.addColorStop(1, col + '00');
+    ctx.fillStyle = g; ctx.fillRect(ix - 16, cy - 16, 32, 32);
+
+    // Dot
+    ctx.beginPath(); ctx.arc(ix, cy, 5, 0, Math.PI * 2);
+    ctx.fillStyle = col; ctx.fill();
+  }
+}
+
+// ===== PRACTICE =====
+function startPractice(){
+  currentIdx = 0;
+  holdStart = 0;
+  isInRange = false;
+  showScreen('practice');
+  updateTarget();
+}
+
+function updateTarget(){
+  if(currentIdx >= selectedNotes.length){
+    showScreen('result');
+    return;
+  }
+  var midi = selectedNotes[currentIdx];
+  var info = midiInfo(midi);
+  var range = getRange(midi);
+  var col = getStringColor(midi);
+
+  document.getElementById('targetKana').textContent = info.kana;
+  document.getElementById('targetKana').style.color = col;
+  document.getElementById('targetInfo').textContent = info.name + info.oct + ' · ' + range.etHz.toFixed(1) + ' Hz (ET)';
+  document.getElementById('targetRange').innerHTML = '範囲: <em>' + range.loHz.toFixed(1) + ' - ' + range.hiHz.toFixed(1) + ' Hz</em>  (' + range.ivName + ')';
+
+  // Progress
+  document.getElementById('ppText').textContent = (currentIdx + 1) + '/' + selectedNotes.length;
+  document.getElementById('ppFill').style.width = (currentIdx / selectedNotes.length * 100) + '%';
+
+  // Sequence dots
+  var dotsHtml = '';
+  for(var i = 0; i < selectedNotes.length; i++){
+    var ni = midiInfo(selectedNotes[i]);
+    var cls = i < currentIdx ? 'done' : i === currentIdx ? 'current' : '';
+    var sym = i < currentIdx ? '✓' : (i + 1);
+    dotsHtml += '<div class="seq-dot ' + cls + '">'
+      + '<div class="dot-circle">' + sym + '</div>'
+      + '<div class="dot-name">' + ni.kana + ni.oct + '</div></div>';
+  }
+  document.getElementById('seqDots').innerHTML = dotsHtml;
+
+  // Staff and zone
+  setTimeout(function(){
+    setupStaff(); drawStaff(midi);
+    setupZone(); drawZone(midi, null);
+  }, 30);
+
+  // Reset detection display
+  document.getElementById('detectHz').textContent = '---';
+  document.getElementById('detectHz').className = 'detect-hz pos-silent';
+  document.getElementById('detectPos').textContent = '音を出してください';
+  document.getElementById('detectPos').className = 'detect-pos pos-silent';
+  document.getElementById('detectCents').textContent = '';
+
+  // Auto/confirm controls
+  document.getElementById('autoWrap').style.display = practiceMode === 'auto' ? 'block' : 'none';
+  document.getElementById('confirmBtn').style.display = practiceMode === 'confirm' ? 'block' : 'none';
+  document.getElementById('autoFill').style.width = '0%';
+  document.getElementById('confirmBtn').className = 'confirm-btn waiting';
+  document.getElementById('confirmBtn').textContent = '次へ';
+
+  holdStart = 0;
+  isInRange = false;
+}
+
+function advanceNote(){
+  currentIdx++;
+  updateTarget();
+}
+
+function updateDetection(freq){
+  if(currentScreen !== 'practice' || currentIdx >= selectedNotes.length) return;
+  var midi = selectedNotes[currentIdx];
+  var range = getRange(midi);
+
+  if(freq <= 0){
+    silCnt++;
+    if(silCnt > 15){
+      smoothPitch = 0;
+      document.getElementById('detectHz').textContent = '---';
+      document.getElementById('detectHz').className = 'detect-hz pos-silent';
+      document.getElementById('detectPos').textContent = '音を出してください';
+      document.getElementById('detectPos').className = 'detect-pos pos-silent';
+      document.getElementById('detectCents').textContent = '';
+      drawZone(midi, null);
+      holdStart = 0; isInRange = false;
+      if(practiceMode === 'auto') document.getElementById('autoFill').style.width = '0%';
+      if(practiceMode === 'confirm'){
+        document.getElementById('confirmBtn').className = 'confirm-btn waiting';
+      }
+    }
+    return;
+  }
+
+  silCnt = 0;
+  if(smoothPitch === 0 || Math.abs(centsFrom(freq, smoothPitch)) > 80) smoothPitch = freq;
+  else smoothPitch = smoothPitch * 0.7 + freq * 0.3;
+
+  var cents = centsFrom(smoothPitch, range.etHz);
+  var inRange = cents >= range.lo && cents <= range.hi;
+
+  // Update Hz display
+  document.getElementById('detectHz').textContent = smoothPitch.toFixed(1) + ' Hz';
+  document.getElementById('detectCents').textContent = (cents >= 0 ? '+' : '') + cents.toFixed(1) + ' cent';
+
+  // Position
+  var posText, posClass;
+  if(inRange){
+    if(cents < -4){ posText = '低め'; posClass = 'pos-low'; }
+    else if(cents > 4){ posText = '高め'; posClass = 'pos-high'; }
+    else { posText = 'ピアノ寄り'; posClass = 'pos-piano'; }
+    document.getElementById('detectHz').className = 'detect-hz ' + posClass;
+  } else {
+    if(cents < range.lo){ posText = '↑ もっと高く'; }
+    else { posText = '↓ もっと低く'; }
+    posClass = 'pos-out';
+    document.getElementById('detectHz').className = 'detect-hz pos-out';
+  }
+  document.getElementById('detectPos').textContent = posText;
+  document.getElementById('detectPos').className = 'detect-pos ' + posClass;
+
+  // Zone bar
+  drawZone(midi, cents);
+
+  // Auto mode logic
+  if(practiceMode === 'auto'){
+    if(inRange){
+      if(!isInRange){ holdStart = Date.now(); isInRange = true; }
+      var elapsed = Date.now() - holdStart;
+      var pct = Math.min(100, elapsed / AUTO_HOLD_MS * 100);
+      document.getElementById('autoFill').style.width = pct + '%';
+      if(elapsed >= AUTO_HOLD_MS){
+        advanceNote();
+      }
+    } else {
+      holdStart = 0; isInRange = false;
+      document.getElementById('autoFill').style.width = '0%';
+    }
+  }
+
+  // Confirm mode logic
+  if(practiceMode === 'confirm'){
+    isInRange = inRange;
+    if(inRange){
+      document.getElementById('confirmBtn').className = 'confirm-btn ready';
+    } else {
+      document.getElementById('confirmBtn').className = 'confirm-btn waiting';
+    }
+  }
+}
+
+// ===== AUDIO =====
+async function startAudio(){
+  var errEl = document.getElementById('errorMsg');
+  try {
+    if(location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1' && location.hostname !== ''){
+      errEl.textContent = 'HTTPS環境が必要です'; errEl.style.display = 'block'; return;
+    }
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC){ errEl.textContent = 'Web Audio API非対応'; errEl.style.display = 'block'; return; }
+
+    audioCtx = new AC();
+    await audioCtx.resume();
+    var stream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+    });
+    var src = audioCtx.createMediaStreamSource(stream);
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 4096;
+    src.connect(analyser);
+    audioBuf = new Float32Array(analyser.fftSize);
+    isRunning = true;
+    showScreen('setup');
+    tick();
+  } catch(e){
+    errEl.textContent = e.name === 'NotAllowedError'
+      ? 'マイクへのアクセスが拒否されました。設定から許可してください。'
+      : 'マイク初期化失敗: ' + e.message;
+    errEl.style.display = 'block';
+  }
+}
+
+function tick(){
+  if(!isRunning) return;
+  try {
+    analyser.getFloatTimeDomainData(audioBuf);
+    var r = rms(audioBuf);
+    if(r < 0.01){
+      updateDetection(-1);
+    } else {
+      var f = yin(audioBuf, audioCtx.sampleRate);
+      if(f > 170 && f < 3200){
+        updateDetection(f);
+      } else {
+        updateDetection(-1);
+      }
+    }
+  } catch(e){}
+  requestAnimationFrame(tick);
+}
+
+// ===== SCREEN NAV =====
+function showScreen(name){
+  currentScreen = name;
+  ['startScreen','setupScreen','practiceScreen','resultScreen'].forEach(function(id){
+    document.getElementById(id).classList.remove('visible');
+  });
+  document.getElementById(name + 'Screen').classList.add('visible');
+  // Hide start screen flex
+  document.getElementById('startScreen').style.display = name === 'start' ? 'flex' : 'none';
+
+  if(name === 'setup'){
+    buildNoteGrid();
+    renderSelected();
+  }
+  if(name === 'practice'){
+    setTimeout(function(){ setupStaff(); setupZone(); }, 30);
+  }
+}
+
+// ===== EVENT LISTENERS =====
+document.getElementById('startBtn').addEventListener('click', startAudio);
+
+// Mode toggle
+document.querySelectorAll('.mode-opt').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    practiceMode = btn.dataset.mode;
+    document.querySelectorAll('.mode-opt').forEach(function(b){
+      b.classList.toggle('active', b.dataset.mode === practiceMode);
+    });
+  });
+});
+
+// Clear selection
+document.getElementById('selClear').addEventListener('click', function(){
+  selectedNotes = [];
+  renderSelected();
+});
+
+// Start practice
+document.getElementById('selStart').addEventListener('click', startPractice);
+
+// Confirm next
+document.getElementById('confirmBtn').addEventListener('click', function(){
+  if(isInRange) advanceNote();
+});
+
+// Stop practice
+document.getElementById('pracStop').addEventListener('click', function(){ showScreen('setup'); });
+document.getElementById('pracStop2').addEventListener('click', function(){ showScreen('setup'); });
+
+// Result actions
+document.getElementById('resultRetry').addEventListener('click', startPractice);
+document.getElementById('resultBack').addEventListener('click', function(){ showScreen('setup'); });
+
+// Resize
+window.addEventListener('resize', function(){
+  if(currentScreen === 'practice'){
+    setupStaff(); setupZone();
+    if(currentIdx < selectedNotes.length){
+      drawStaff(selectedNotes[currentIdx]);
+      drawZone(selectedNotes[currentIdx], null);
+    }
+  }
+});
+
+// iOS resume
+document.addEventListener('visibilitychange', function(){
+  if(audioCtx && !document.hidden) audioCtx.resume();
+});
+document.addEventListener('touchstart', function(){
+  if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}, { passive: true });
+
+})();
+</script>
+</body>
+</html>
