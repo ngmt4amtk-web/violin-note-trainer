@@ -58,7 +58,7 @@ html,body{
 .setup-content{flex:1;overflow-y:auto;padding:0 16px 100px;-webkit-overflow-scrolling:touch}
 .oct-label{font-size:11px;color:#445;font-weight:600;margin:12px 0 6px;letter-spacing:.5px}
 .oct-label:first-child{margin-top:0}
-.note-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.note-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .note-btn{
   padding:8px 2px;border-radius:8px;
   background:#12152a;border:1.5px solid #1e2140;
@@ -66,7 +66,7 @@ html,body{
   font-family:inherit;transition:all .12s;
 }
 .note-btn:active{transform:scale(.93)}
-.note-btn .nb-kana{display:block;font-size:13px;font-weight:700;line-height:1.2}
+.note-btn .nb-kana{display:block;font-size:12px;font-weight:700;line-height:1.2}
 .note-btn .nb-oct{display:block;font-size:9px;opacity:.5;margin-top:1px}
 
 /* Selected notes */
@@ -156,7 +156,7 @@ html,body{
   border:none;cursor:pointer;font-family:inherit;transition:all .15s;
 }
 .confirm-btn.ready{background:#2ecc71;color:#fff}
-.confirm-btn.waiting{background:#1e2140;color:#334;cursor:default}
+.confirm-btn.waiting{background:#1e2140;color:#556;cursor:pointer}
 
 .prac-stop{
   display:block;width:100%;margin-top:8px;padding:10px;
@@ -265,7 +265,7 @@ html,body{
 
         <div class="auto-bar-wrap" id="autoWrap">
           <div class="auto-bar"><div class="auto-fill" id="autoFill"></div></div>
-          <div class="auto-label">正解範囲を1.5秒キープで次へ</div>
+          <div class="auto-label">正解範囲を0.5秒キープで次へ</div>
         </div>
 
         <button class="confirm-btn waiting" id="confirmBtn" style="display:none">
@@ -298,19 +298,88 @@ html,body{
 
 // ===== CONSTANTS =====
 var A4 = 442;
-var MIDI_MIN = 55; // G3
-var MIDI_MAX = 91; // G6
-var AUTO_HOLD_MS = 1500;
+var AUTO_HOLD_MS = 500;
 var RANGE_BUFFER = 5; // cents
 
-var KANA = ['ド','ド♯','レ','レ♯','ミ','ファ','ファ♯','ソ','ソ♯','ラ','ラ♯','シ'];
-var NAMES = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
-var STAFF_BASE = [0,0,1,1,2,3,3,4,4,5,5,6];
-var IS_SHARP = [false,true,false,true,false,false,true,false,true,false,true,false];
+// All notes with enharmonic equivalents
+// letter: C=0,D=1,E=2,F=3,G=4,A=5,B=6  acc: -1=flat, 0=natural, 1=sharp
+var ALL_NOTES = [
+  {midi:55,name:'G3',kana:'ソ',letter:4,acc:0,oct:3},
+  {midi:56,name:'G♯3',kana:'ソ♯',letter:4,acc:1,oct:3},
+  {midi:56,name:'A♭3',kana:'ラ♭',letter:5,acc:-1,oct:3},
+  {midi:57,name:'A3',kana:'ラ',letter:5,acc:0,oct:3},
+  {midi:58,name:'A♯3',kana:'ラ♯',letter:5,acc:1,oct:3},
+  {midi:58,name:'B♭3',kana:'シ♭',letter:6,acc:-1,oct:3},
+  {midi:59,name:'B3',kana:'シ',letter:6,acc:0,oct:3},
+  {midi:59,name:'C♭4',kana:'ド♭',letter:0,acc:-1,oct:4},
+  {midi:60,name:'B♯3',kana:'シ♯',letter:6,acc:1,oct:3},
+  {midi:60,name:'C4',kana:'ド',letter:0,acc:0,oct:4},
+  {midi:61,name:'C♯4',kana:'ド♯',letter:0,acc:1,oct:4},
+  {midi:61,name:'D♭4',kana:'レ♭',letter:1,acc:-1,oct:4},
+  {midi:62,name:'D4',kana:'レ',letter:1,acc:0,oct:4},
+  {midi:63,name:'D♯4',kana:'レ♯',letter:1,acc:1,oct:4},
+  {midi:63,name:'E♭4',kana:'ミ♭',letter:2,acc:-1,oct:4},
+  {midi:64,name:'E4',kana:'ミ',letter:2,acc:0,oct:4},
+  {midi:64,name:'F♭4',kana:'ファ♭',letter:3,acc:-1,oct:4},
+  {midi:65,name:'E♯4',kana:'ミ♯',letter:2,acc:1,oct:4},
+  {midi:65,name:'F4',kana:'ファ',letter:3,acc:0,oct:4},
+  {midi:66,name:'F♯4',kana:'ファ♯',letter:3,acc:1,oct:4},
+  {midi:66,name:'G♭4',kana:'ソ♭',letter:4,acc:-1,oct:4},
+  {midi:67,name:'G4',kana:'ソ',letter:4,acc:0,oct:4},
+  {midi:68,name:'G♯4',kana:'ソ♯',letter:4,acc:1,oct:4},
+  {midi:68,name:'A♭4',kana:'ラ♭',letter:5,acc:-1,oct:4},
+  {midi:69,name:'A4',kana:'ラ',letter:5,acc:0,oct:4},
+  {midi:70,name:'A♯4',kana:'ラ♯',letter:5,acc:1,oct:4},
+  {midi:70,name:'B♭4',kana:'シ♭',letter:6,acc:-1,oct:4},
+  {midi:71,name:'B4',kana:'シ',letter:6,acc:0,oct:4},
+  {midi:71,name:'C♭5',kana:'ド♭',letter:0,acc:-1,oct:5},
+  {midi:72,name:'B♯4',kana:'シ♯',letter:6,acc:1,oct:4},
+  {midi:72,name:'C5',kana:'ド',letter:0,acc:0,oct:5},
+  {midi:73,name:'C♯5',kana:'ド♯',letter:0,acc:1,oct:5},
+  {midi:73,name:'D♭5',kana:'レ♭',letter:1,acc:-1,oct:5},
+  {midi:74,name:'D5',kana:'レ',letter:1,acc:0,oct:5},
+  {midi:75,name:'D♯5',kana:'レ♯',letter:1,acc:1,oct:5},
+  {midi:75,name:'E♭5',kana:'ミ♭',letter:2,acc:-1,oct:5},
+  {midi:76,name:'E5',kana:'ミ',letter:2,acc:0,oct:5},
+  {midi:76,name:'F♭5',kana:'ファ♭',letter:3,acc:-1,oct:5},
+  {midi:77,name:'E♯5',kana:'ミ♯',letter:2,acc:1,oct:5},
+  {midi:77,name:'F5',kana:'ファ',letter:3,acc:0,oct:5},
+  {midi:78,name:'F♯5',kana:'ファ♯',letter:3,acc:1,oct:5},
+  {midi:78,name:'G♭5',kana:'ソ♭',letter:4,acc:-1,oct:5},
+  {midi:79,name:'G5',kana:'ソ',letter:4,acc:0,oct:5},
+  {midi:80,name:'G♯5',kana:'ソ♯',letter:4,acc:1,oct:5},
+  {midi:80,name:'A♭5',kana:'ラ♭',letter:5,acc:-1,oct:5},
+  {midi:81,name:'A5',kana:'ラ',letter:5,acc:0,oct:5},
+  {midi:82,name:'A♯5',kana:'ラ♯',letter:5,acc:1,oct:5},
+  {midi:82,name:'B♭5',kana:'シ♭',letter:6,acc:-1,oct:5},
+  {midi:83,name:'B5',kana:'シ',letter:6,acc:0,oct:5},
+  {midi:83,name:'C♭6',kana:'ド♭',letter:0,acc:-1,oct:6},
+  {midi:84,name:'B♯5',kana:'シ♯',letter:6,acc:1,oct:5},
+  {midi:84,name:'C6',kana:'ド',letter:0,acc:0,oct:6},
+  {midi:85,name:'C♯6',kana:'ド♯',letter:0,acc:1,oct:6},
+  {midi:85,name:'D♭6',kana:'レ♭',letter:1,acc:-1,oct:6},
+  {midi:86,name:'D6',kana:'レ',letter:1,acc:0,oct:6},
+  {midi:87,name:'D♯6',kana:'レ♯',letter:1,acc:1,oct:6},
+  {midi:87,name:'E♭6',kana:'ミ♭',letter:2,acc:-1,oct:6},
+  {midi:88,name:'E6',kana:'ミ',letter:2,acc:0,oct:6},
+  {midi:88,name:'F♭6',kana:'ファ♭',letter:3,acc:-1,oct:6},
+  {midi:89,name:'E♯6',kana:'ミ♯',letter:2,acc:1,oct:6},
+  {midi:89,name:'F6',kana:'ファ',letter:3,acc:0,oct:6},
+  {midi:90,name:'F♯6',kana:'ファ♯',letter:3,acc:1,oct:6},
+  {midi:90,name:'G♭6',kana:'ソ♭',letter:4,acc:-1,oct:6},
+  {midi:91,name:'G6',kana:'ソ',letter:4,acc:0,oct:6}
+];
+
+var NOTE_GROUPS = [
+  {label:'第3オクターブ (G3〜B3)', start:0, end:6},
+  {label:'第4オクターブ (C4〜B4)', start:7, end:27},
+  {label:'第5オクターブ (C5〜B5)', start:28, end:48},
+  {label:'第6オクターブ (C6〜G6)', start:49, end:63}
+];
 
 // Open strings (MIDI)
 var OPEN_MIDS = [55,62,69,76]; // G3,D4,A4,E5
-var STR_COLORS = ['#4f8cff','#f5a623','#e74c3c','#2ecc71'];
+var STR_COLORS = ['#2ecc71','#f5a623','#e74c3c','#4f8cff'];
 
 // Interval data: ji/pyth = cents offset from ET
 var INTERVALS = [
@@ -332,16 +401,8 @@ var INTERVALS = [
 function etFreq(midi){ return A4 * Math.pow(2, (midi - 69) / 12); }
 function centsFrom(f, t){ return 1200 * Math.log2(f / t); }
 
-function midiInfo(midi){
-  var pc = ((midi % 12) + 12) % 12;
-  var oct = Math.floor(midi / 12) - 1;
-  return { midi:midi, pc:pc, oct:oct, kana:KANA[pc], name:NAMES[pc], sharp:IS_SHARP[pc], staffBase:STAFF_BASE[pc], freq:etFreq(midi) };
-}
-
-function staffPos(midi){
-  var pc = ((midi % 12) + 12) % 12;
-  var oct = Math.floor(midi / 12) - 1;
-  return (oct - 4) * 7 + STAFF_BASE[pc] - 2;
+function noteStaffPos(note){
+  return (note.oct - 4) * 7 + note.letter - 2;
 }
 
 function getStringIdx(midi){
@@ -374,7 +435,7 @@ function getRange(midi){
 }
 
 // ===== STATE =====
-var selectedNotes = [];
+var selectedNotes = []; // stores note objects from ALL_NOTES
 var practiceMode = 'auto';
 var currentIdx = 0;
 var audioCtx = null, analyser = null, audioBuf = null;
@@ -415,36 +476,28 @@ function rms(buf){ var s = 0; for(var i = 0; i < buf.length; i++) s += buf[i]*bu
 // ===== NOTE GRID =====
 function buildNoteGrid(){
   var area = document.getElementById('noteGridArea');
-  var groups = [
-    { label: 'G弦 — 第3オクターブ', start: 55, end: 59 },
-    { label: 'D弦 — 第4オクターブ', start: 60, end: 67 },
-    { label: 'A弦 — 第4オクターブ', start: 68, end: 71 },
-    { label: 'A弦 — 第5オクターブ', start: 72, end: 75 },
-    { label: 'E弦 — 第5オクターブ', start: 76, end: 83 },
-    { label: '高音域 — 第6オクターブ', start: 84, end: 91 }
-  ];
   var html = '';
-  for(var g = 0; g < groups.length; g++){
-    var gr = groups[g];
+  for(var g = 0; g < NOTE_GROUPS.length; g++){
+    var gr = NOTE_GROUPS[g];
     html += '<div class="oct-label">' + gr.label + '</div><div class="note-grid">';
-    for(var m = gr.start; m <= gr.end; m++){
-      var info = midiInfo(m);
-      var col = getStringColor(m);
-      html += '<button class="note-btn" data-midi="' + m + '" style="border-color:' + col + '40">'
-        + '<span class="nb-kana" style="color:' + col + '">' + info.kana + '</span>'
-        + '<span class="nb-oct">' + info.name + info.oct + '</span></button>';
+    for(var i = gr.start; i <= gr.end; i++){
+      var note = ALL_NOTES[i];
+      var col = getStringColor(note.midi);
+      html += '<button class="note-btn" data-nidx="' + i + '" style="border-color:' + col + '40">'
+        + '<span class="nb-kana" style="color:' + col + '">' + note.kana + '</span>'
+        + '<span class="nb-oct">' + note.name + '</span></button>';
     }
     html += '</div>';
   }
   area.innerHTML = html;
   area.querySelectorAll('.note-btn').forEach(function(btn){
-    btn.addEventListener('click', function(){ addNote(parseInt(btn.dataset.midi)); });
+    btn.addEventListener('click', function(){ addNote(parseInt(btn.dataset.nidx)); });
   });
 }
 
-function addNote(midi){
+function addNote(nidx){
   if(selectedNotes.length >= 8) return;
-  selectedNotes.push(midi);
+  selectedNotes.push(ALL_NOTES[nidx]);
   renderSelected();
 }
 
@@ -457,10 +510,10 @@ function renderSelected(){
   var row = document.getElementById('selRow');
   var html = '';
   for(var i = 0; i < selectedNotes.length; i++){
-    var info = midiInfo(selectedNotes[i]);
-    var col = getStringColor(selectedNotes[i]);
+    var note = selectedNotes[i];
+    var col = getStringColor(note.midi);
     html += '<span class="sel-chip" data-idx="' + i + '" style="border-left:3px solid ' + col + '">'
-      + info.kana + info.oct + ' <span class="chip-x">×</span></span>';
+      + note.kana + note.oct + ' <span class="chip-x">×</span></span>';
   }
   row.innerHTML = html;
   row.querySelectorAll('.sel-chip').forEach(function(chip){
@@ -487,7 +540,7 @@ function setupStaff(){
   staffCtx = dprCanvas(c, sW, sH);
 }
 
-function drawStaff(midi){
+function drawStaff(note){
   var ctx = staffCtx; if(!ctx) return;
   ctx.clearRect(0, 0, sW, sH);
   var LS = 12, HS = LS / 2;
@@ -510,9 +563,8 @@ function drawStaff(midi){
   else { ctx.font = 'bold ' + (LS*1.5) + 'px serif'; ctx.fillStyle = '#334'; ctx.textBaseline = 'middle'; ctx.textAlign = 'center'; ctx.fillText('G', sl + 16, gLineY); }
   ctx.restore();
 
-  if(midi < 0) return;
-  var sp = staffPos(midi);
-  var info = midiInfo(midi);
+  if(!note) return;
+  var sp = noteStaffPos(note);
   var nx = (sl + sr) / 2 + 8;
   var ny = bly - sp * HS;
   var nr = HS * 1.3;
@@ -523,14 +575,15 @@ function drawStaff(midi){
   if(sp >= 10){ for(var p = 10; p <= sp; p += 2){ var ly = bly - p * HS; ctx.beginPath(); ctx.moveTo(nx-nr*2, ly); ctx.lineTo(nx+nr*2, ly); ctx.stroke(); } }
 
   // Accidental
-  if(info.sharp){
+  if(note.acc !== 0){
+    var accSign = note.acc === 1 ? '♯' : '♭';
     ctx.fillStyle = '#aab'; ctx.font = 'bold ' + (LS*1.1) + 'px -apple-system,sans-serif';
     ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-    ctx.fillText('♯', nx - nr - 5, ny + 1);
+    ctx.fillText(accSign, nx - nr - 5, ny + 1);
   }
 
   // Note head
-  var col = getStringColor(midi);
+  var col = getStringColor(note.midi);
   ctx.save(); ctx.translate(nx, ny); ctx.rotate(-0.3);
   ctx.beginPath(); ctx.ellipse(0, 0, nr, nr * 0.72, 0, 0, Math.PI * 2);
   ctx.fillStyle = col; ctx.fill(); ctx.restore();
@@ -646,14 +699,14 @@ function updateTarget(){
     showScreen('result');
     return;
   }
-  var midi = selectedNotes[currentIdx];
-  var info = midiInfo(midi);
+  var note = selectedNotes[currentIdx];
+  var midi = note.midi;
   var range = getRange(midi);
   var col = getStringColor(midi);
 
-  document.getElementById('targetKana').textContent = info.kana;
+  document.getElementById('targetKana').textContent = note.kana;
   document.getElementById('targetKana').style.color = col;
-  document.getElementById('targetInfo').textContent = info.name + info.oct + ' · ' + range.etHz.toFixed(1) + ' Hz (ET)';
+  document.getElementById('targetInfo').textContent = note.name + ' · ' + range.etHz.toFixed(1) + ' Hz (ET)';
   document.getElementById('targetRange').innerHTML = '範囲: <em>' + range.loHz.toFixed(1) + ' - ' + range.hiHz.toFixed(1) + ' Hz</em>  (' + range.ivName + ')';
 
   // Progress
@@ -663,7 +716,7 @@ function updateTarget(){
   // Sequence dots
   var dotsHtml = '';
   for(var i = 0; i < selectedNotes.length; i++){
-    var ni = midiInfo(selectedNotes[i]);
+    var ni = selectedNotes[i];
     var cls = i < currentIdx ? 'done' : i === currentIdx ? 'current' : '';
     var sym = i < currentIdx ? '✓' : (i + 1);
     dotsHtml += '<div class="seq-dot ' + cls + '">'
@@ -674,7 +727,7 @@ function updateTarget(){
 
   // Staff and zone
   setTimeout(function(){
-    setupStaff(); drawStaff(midi);
+    setupStaff(); drawStaff(note);
     setupZone(); drawZone(midi, null);
   }, 30);
 
@@ -689,7 +742,7 @@ function updateTarget(){
   document.getElementById('autoWrap').style.display = practiceMode === 'auto' ? 'block' : 'none';
   document.getElementById('confirmBtn').style.display = practiceMode === 'confirm' ? 'block' : 'none';
   document.getElementById('autoFill').style.width = '0%';
-  document.getElementById('confirmBtn').className = 'confirm-btn waiting';
+  document.getElementById('confirmBtn').className = 'confirm-btn ready';
   document.getElementById('confirmBtn').textContent = '次へ';
 
   holdStart = 0;
@@ -703,7 +756,7 @@ function advanceNote(){
 
 function updateDetection(freq){
   if(currentScreen !== 'practice' || currentIdx >= selectedNotes.length) return;
-  var midi = selectedNotes[currentIdx];
+  var midi = selectedNotes[currentIdx].midi;
   var range = getRange(midi);
 
   if(freq <= 0){
@@ -718,9 +771,6 @@ function updateDetection(freq){
       drawZone(midi, null);
       holdStart = 0; isInRange = false;
       if(practiceMode === 'auto') document.getElementById('autoFill').style.width = '0%';
-      if(practiceMode === 'confirm'){
-        document.getElementById('confirmBtn').className = 'confirm-btn waiting';
-      }
     }
     return;
   }
@@ -771,14 +821,9 @@ function updateDetection(freq){
     }
   }
 
-  // Confirm mode logic
+  // Confirm mode: update range status display only (button always enabled)
   if(practiceMode === 'confirm'){
     isInRange = inRange;
-    if(inRange){
-      document.getElementById('confirmBtn').className = 'confirm-btn ready';
-    } else {
-      document.getElementById('confirmBtn').className = 'confirm-btn waiting';
-    }
   }
 }
 
@@ -873,9 +918,9 @@ document.getElementById('selClear').addEventListener('click', function(){
 // Start practice
 document.getElementById('selStart').addEventListener('click', startPractice);
 
-// Confirm next
+// Confirm next — always advances
 document.getElementById('confirmBtn').addEventListener('click', function(){
-  if(isInRange) advanceNote();
+  advanceNote();
 });
 
 // Stop practice
@@ -892,7 +937,7 @@ window.addEventListener('resize', function(){
     setupStaff(); setupZone();
     if(currentIdx < selectedNotes.length){
       drawStaff(selectedNotes[currentIdx]);
-      drawZone(selectedNotes[currentIdx], null);
+      drawZone(selectedNotes[currentIdx].midi, null);
     }
   }
 });
