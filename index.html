@@ -9,7 +9,7 @@
 html,body{
   height:100%;
   font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;
-  background:#0d0f1a;color:#fff;overflow:hidden;
+  background:#f7f8fc;color:#1a1a2e;overflow:hidden;
   -webkit-user-select:none;user-select:none;
   -webkit-tap-highlight-color:transparent;
 }
@@ -20,49 +20,54 @@ html,body{
 /* Start */
 #startScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:40px 24px}
 .start-title{color:#4f8cff;font-size:20px;font-weight:700;margin-bottom:6px}
-.start-sub{color:#556;font-size:12px;margin-bottom:28px;text-align:center;line-height:1.6}
+.start-sub{color:#6b7280;font-size:12px;margin-bottom:28px;text-align:center;line-height:1.6}
 .start-btn{
   width:120px;height:120px;border-radius:60px;
-  background:#131630;border:2px solid #4f8cff40;
+  background:#fff;border:2px solid #4f8cff40;
   color:#4f8cff;font-size:15px;font-weight:600;
   cursor:pointer;display:flex;flex-direction:column;
   align-items:center;justify-content:center;gap:8px;
   transition:all .15s;font-family:inherit;
+  box-shadow:0 2px 8px rgba(79,140,255,.12);
 }
 .start-btn:active{transform:scale(.93);border-color:#4f8cff}
 .start-btn svg{width:36px;height:36px}
-.start-hint{color:#445;font-size:12px;margin-top:20px}
+.start-hint{color:#9ca3af;font-size:12px;margin-top:20px}
 .error-msg{color:#e74c3c;font-size:13px;margin-top:16px;text-align:center;line-height:1.6}
 
 /* Header */
 .header{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;flex-shrink:0}
-.header .h-title{font-size:15px;font-weight:700;color:#778}
+.header .h-title{font-size:15px;font-weight:700;color:#6b7280}
 .header .h-btn{
   background:none;border:none;color:#4f8cff;font-size:13px;font-weight:600;
   cursor:pointer;font-family:inherit;padding:6px 12px;
 }
+.ta-timer{font-size:15px;font-weight:700;color:#4f8cff;font-variant-numeric:tabular-nums}
 
 /* Setup */
-.mode-toggle{
-  display:flex;gap:0;margin:0 16px 12px;
-  background:#12152a;border-radius:10px;overflow:hidden;border:1px solid #1e2140;
+.setup-section{margin:0 16px 4px;font-size:10px;color:#9ca3af;font-weight:600;letter-spacing:.3px;text-transform:uppercase}
+.mode-toggle,.diff-toggle{
+  display:flex;gap:0;margin:0 16px 8px;
+  background:#fff;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;
 }
-.mode-opt{
-  flex:1;padding:10px 4px;text-align:center;
-  font-size:13px;font-weight:600;color:#445;
+.mode-opt,.diff-opt{
+  flex:1;padding:8px 2px;text-align:center;
+  font-size:11px;font-weight:600;color:#9ca3af;
   background:none;border:none;cursor:pointer;font-family:inherit;transition:all .15s;
 }
-.mode-opt.active{color:#4f8cff;background:#4f8cff18}
-.mode-opt .mode-desc{display:block;font-size:9px;font-weight:400;opacity:.6;margin-top:2px}
+.mode-opt.active{color:#4f8cff;background:#eff3ff}
+.diff-opt.active{color:#4f8cff;background:#eff3ff}
+.diff-opt[data-diff="easy"].active{color:#f59e0b;background:#fffbeb}
+.mode-desc{display:block;font-size:8px;font-weight:400;opacity:.6;margin-top:1px}
 
-.setup-content{flex:1;overflow-y:auto;padding:0 16px 100px;-webkit-overflow-scrolling:touch}
-.oct-label{font-size:11px;color:#445;font-weight:600;margin:12px 0 6px;letter-spacing:.5px}
+.setup-content{flex:1;overflow-y:auto;padding:0 16px 120px;-webkit-overflow-scrolling:touch}
+.oct-label{font-size:11px;color:#9ca3af;font-weight:600;margin:12px 0 6px;letter-spacing:.5px}
 .oct-label:first-child{margin-top:0}
 .note-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .note-btn{
   padding:8px 2px;border-radius:8px;
-  background:#12152a;border:1.5px solid #1e2140;
-  color:#667;cursor:pointer;text-align:center;
+  background:#fff;border:1.5px solid #e5e7eb;
+  color:#6b7280;cursor:pointer;text-align:center;
   font-family:inherit;transition:all .12s;
 }
 .note-btn:active{transform:scale(.93)}
@@ -72,25 +77,25 @@ html,body{
 /* Selected notes */
 .sel-area{
   position:fixed;bottom:0;left:0;right:0;
-  background:#0d0f1aee;backdrop-filter:blur(12px);
+  background:#ffffffee;backdrop-filter:blur(12px);
   padding:10px 16px env(safe-area-inset-bottom,10px);
-  border-top:1px solid #1e2140;z-index:10;
+  border-top:1px solid #e5e7eb;z-index:10;
 }
 .sel-row{display:flex;align-items:center;gap:6px;margin-bottom:8px;min-height:32px;flex-wrap:wrap}
 .sel-chip{
   display:inline-flex;align-items:center;gap:3px;
   padding:4px 10px;border-radius:6px;
-  background:#1e2140;font-size:12px;font-weight:600;color:#aab;
+  background:#f0f1f5;font-size:12px;font-weight:600;color:#4a5568;
   cursor:pointer;transition:all .12s;
 }
 .sel-chip:active{transform:scale(.9)}
-.sel-chip .chip-x{color:#556;font-size:10px}
+.sel-chip .chip-x{color:#9ca3af;font-size:10px}
 .sel-bottom{display:flex;align-items:center;justify-content:space-between}
-.sel-count{font-size:12px;color:#556}
+.sel-count{font-size:12px;color:#9ca3af}
 .sel-count em{font-style:normal;color:#4f8cff}
 .sel-actions{display:flex;gap:8px}
 .sel-clear{
-  background:none;border:1px solid #333;color:#556;
+  background:none;border:1px solid #d1d5db;color:#9ca3af;
   padding:8px 14px;border-radius:8px;font-size:12px;
   font-weight:600;cursor:pointer;font-family:inherit;
 }
@@ -103,32 +108,33 @@ html,body{
 
 /* Practice */
 .prac-progress{display:flex;align-items:center;gap:8px;padding:0 16px;margin-bottom:8px}
-.prac-progress .pp-text{font-size:12px;color:#556;font-weight:600;white-space:nowrap}
-.pp-bar{flex:1;height:4px;background:#1e2140;border-radius:2px;overflow:hidden}
+.prac-progress .pp-text{font-size:12px;color:#9ca3af;font-weight:600;white-space:nowrap}
+.pp-bar{flex:1;height:4px;background:#e5e7eb;border-radius:2px;overflow:hidden}
 .pp-fill{height:100%;background:#4f8cff;border-radius:2px;transition:width .3s}
+.pp-round{font-size:11px;color:#4f8cff;font-weight:700;padding:0 16px;margin-bottom:4px}
 
 .seq-dots{display:flex;gap:6px;padding:0 16px;margin-bottom:10px;overflow-x:auto;flex-shrink:0}
 .seq-dot{
   display:flex;flex-direction:column;align-items:center;gap:2px;min-width:36px;flex-shrink:0;
 }
 .seq-dot .dot-circle{
-  width:20px;height:20px;border-radius:10px;border:2px solid #2a2d48;
+  width:20px;height:20px;border-radius:10px;border:2px solid #d1d5db;
   display:flex;align-items:center;justify-content:center;
-  font-size:10px;transition:all .3s;
+  font-size:10px;color:#9ca3af;transition:all .3s;
 }
-.seq-dot.done .dot-circle{background:#2ecc71;border-color:#2ecc71;color:#fff}
+.seq-dot.done .dot-circle{background:#4f8cff;border-color:#4f8cff;color:#fff}
 .seq-dot.current .dot-circle{background:#4f8cff;border-color:#4f8cff;color:#fff;transform:scale(1.2)}
-.seq-dot .dot-name{font-size:9px;color:#445;white-space:nowrap}
+.seq-dot .dot-name{font-size:9px;color:#9ca3af;white-space:nowrap}
 .seq-dot.current .dot-name{color:#4f8cff;font-weight:600}
 
 .prac-content{flex:1;overflow-y:auto;padding:0 16px 16px;-webkit-overflow-scrolling:touch}
-.card{background:#161929;border-radius:14px;padding:16px;margin-bottom:8px}
+.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:8px;border:1px solid #e5e7eb}
 
 .target-display{text-align:center}
 .target-kana{font-size:52px;font-weight:800;line-height:1.1}
-.target-info{font-size:13px;color:#556;margin-top:4px}
-.target-range{font-size:11px;color:#445;margin-top:6px}
-.target-range em{font-style:normal;color:#667}
+.target-info{font-size:13px;color:#6b7280;margin-top:4px}
+.target-range{font-size:11px;color:#9ca3af;margin-top:6px}
+.target-range em{font-style:normal;color:#6b7280}
 
 #staffCanvas{display:block;margin:8px auto 0}
 #zoneCanvas{display:block;margin:0 auto}
@@ -136,18 +142,18 @@ html,body{
 .detect-display{text-align:center;margin-top:8px}
 .detect-hz{font-size:36px;font-weight:800;line-height:1}
 .detect-pos{font-size:18px;font-weight:700;margin-top:6px;min-height:26px}
-.detect-cents{font-size:12px;color:#556;margin-top:4px}
+.detect-cents{font-size:12px;color:#9ca3af;margin-top:4px}
 .pos-low{color:#f5a623}
-.pos-piano{color:#2ecc71}
-.pos-high{color:#4f8cff}
+.pos-piano{color:#4f8cff}
+.pos-high{color:#2ecc71}
 .pos-out{color:#e74c3c}
-.pos-silent{color:#334}
+.pos-silent{color:#c4c9d4}
 
 /* Auto progress */
 .auto-bar-wrap{margin-top:12px;text-align:center}
-.auto-bar{height:6px;background:#1e2140;border-radius:3px;overflow:hidden;margin-bottom:6px}
-.auto-fill{height:100%;background:#2ecc71;border-radius:3px;transition:width .1s}
-.auto-label{font-size:10px;color:#445}
+.auto-bar{height:6px;background:#e5e7eb;border-radius:3px;overflow:hidden;margin-bottom:6px}
+.auto-fill{height:100%;background:#4f8cff;border-radius:3px;transition:width .1s}
+.auto-label{font-size:10px;color:#9ca3af}
 
 /* Confirm button */
 .confirm-btn{
@@ -155,13 +161,13 @@ html,body{
   border-radius:10px;font-size:16px;font-weight:700;
   border:none;cursor:pointer;font-family:inherit;transition:all .15s;
 }
-.confirm-btn.ready{background:#2ecc71;color:#fff}
-.confirm-btn.waiting{background:#1e2140;color:#556;cursor:pointer}
+.confirm-btn.ready{background:#4f8cff;color:#fff}
+.confirm-btn.waiting{background:#e5e7eb;color:#9ca3af;cursor:pointer}
 
 .prac-stop{
   display:block;width:100%;margin-top:8px;padding:10px;
   border-radius:10px;font-size:13px;font-weight:600;
-  background:none;border:1px solid #2a2d48;color:#556;
+  background:none;border:1px solid #d1d5db;color:#9ca3af;
   cursor:pointer;font-family:inherit;
 }
 
@@ -170,15 +176,15 @@ html,body{
   flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;
 }
 .result-icon{font-size:64px;margin-bottom:16px}
-.result-title{font-size:24px;font-weight:800;color:#2ecc71;margin-bottom:8px}
-.result-sub{font-size:14px;color:#667;margin-bottom:32px}
+.result-title{font-size:24px;font-weight:800;color:#4f8cff;margin-bottom:8px}
+.result-sub{font-size:14px;color:#6b7280;margin-bottom:32px;text-align:center}
 .result-actions{display:flex;gap:12px}
 .result-btn{
   padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;
   cursor:pointer;font-family:inherit;border:none;transition:all .15s;
 }
 .result-btn.primary{background:#4f8cff;color:#fff}
-.result-btn.secondary{background:#1e2140;color:#778;border:1px solid #2a2d48}
+.result-btn.secondary{background:#f0f1f5;color:#6b7280;border:1px solid #e5e7eb}
 </style>
 </head>
 <body>
@@ -203,17 +209,32 @@ html,body{
   <div id="setupScreen" class="screen">
     <div class="header">
       <span class="h-title">音を選択</span>
-      <span class="h-title" style="font-size:11px;color:#445">4〜8個（同一音OK）</span>
+      <span class="h-title" style="font-size:11px;color:#9ca3af">1〜8個（同一音OK）</span>
     </div>
 
+    <div class="setup-section">モード</div>
     <div class="mode-toggle">
       <button class="mode-opt active" data-mode="auto">
-        オート
-        <span class="mode-desc">正解で自動的に次へ</span>
+        オート<span class="mode-desc">正解で自動</span>
       </button>
       <button class="mode-opt" data-mode="confirm">
-        確認
-        <span class="mode-desc">自分で次へボタン</span>
+        確認<span class="mode-desc">手動で次へ</span>
+      </button>
+      <button class="mode-opt" data-mode="repeat">
+        リピート<span class="mode-desc">繰り返し</span>
+      </button>
+      <button class="mode-opt" data-mode="timeattack">
+        ⏱タイム<span class="mode-desc">最速クリア</span>
+      </button>
+    </div>
+
+    <div class="setup-section">難易度</div>
+    <div class="diff-toggle">
+      <button class="diff-opt" data-diff="easy">
+        かんたん<span class="mode-desc">判定ゆるめ ±15¢</span>
+      </button>
+      <button class="diff-opt active" data-diff="normal">
+        ふつう<span class="mode-desc">標準 ±5¢</span>
       </button>
     </div>
 
@@ -234,9 +255,12 @@ html,body{
   <!-- Practice Screen -->
   <div id="practiceScreen" class="screen">
     <div class="header">
-      <span class="h-title">音程ドリル</span>
+      <span class="h-title" id="pracTitle">音程ドリル</span>
+      <span class="ta-timer" id="taTimer" style="display:none"></span>
       <button class="h-btn" id="pracStop">中止</button>
     </div>
+
+    <div class="pp-round" id="ppRound" style="display:none"></div>
 
     <div class="prac-progress">
       <span class="pp-text" id="ppText">1/6</span>
@@ -265,7 +289,7 @@ html,body{
 
         <div class="auto-bar-wrap" id="autoWrap">
           <div class="auto-bar"><div class="auto-fill" id="autoFill"></div></div>
-          <div class="auto-label">正解範囲を0.5秒キープで次へ</div>
+          <div class="auto-label" id="autoLabel">正解範囲を0.5秒キープで次へ</div>
         </div>
 
         <button class="confirm-btn waiting" id="confirmBtn" style="display:none">
@@ -280,8 +304,8 @@ html,body{
   <!-- Result Screen -->
   <div id="resultScreen" class="screen">
     <div class="result-content">
-      <div class="result-icon">&#10004;&#65039;</div>
-      <div class="result-title">完了！</div>
+      <div class="result-icon" id="resultIcon">&#10004;&#65039;</div>
+      <div class="result-title" id="resultTitle">完了！</div>
       <div class="result-sub" id="resultSub">すべての音をクリアしました</div>
       <div class="result-actions">
         <button class="result-btn secondary" id="resultBack">選択画面へ</button>
@@ -299,10 +323,9 @@ html,body{
 // ===== CONSTANTS =====
 var A4 = 442;
 var AUTO_HOLD_MS = 500;
-var RANGE_BUFFER = 5; // cents
+var TA_HOLD_MS = 300;
+var NOTE_NAMES_SIMPLE = ['ド','ド♯','レ','ミ♭','ミ','ファ','ファ♯','ソ','ソ♯','ラ','シ♭','シ'];
 
-// All notes with enharmonic equivalents
-// letter: C=0,D=1,E=2,F=3,G=4,A=5,B=6  acc: -1=flat, 0=natural, 1=sharp
 var ALL_NOTES = [
   {midi:55,name:'G3',kana:'ソ',letter:4,acc:0,oct:3},
   {midi:56,name:'G♯3',kana:'ソ♯',letter:4,acc:1,oct:3},
@@ -377,11 +400,9 @@ var NOTE_GROUPS = [
   {label:'第6オクターブ (C6〜G6)', start:49, end:63}
 ];
 
-// Open strings (MIDI)
-var OPEN_MIDS = [55,62,69,76]; // G3,D4,A4,E5
+var OPEN_MIDS = [55,62,69,76];
 var STR_COLORS = ['#2ecc71','#f5a623','#e74c3c','#4f8cff'];
 
-// Interval data: ji/pyth = cents offset from ET
 var INTERVALS = [
   {name:'完全1度',   ji:  0, pyth:  0},
   {name:'短2度',     ji: 12, pyth:-10},
@@ -400,30 +421,25 @@ var INTERVALS = [
 // ===== HELPERS =====
 function etFreq(midi){ return A4 * Math.pow(2, (midi - 69) / 12); }
 function centsFrom(f, t){ return 1200 * Math.log2(f / t); }
-
-function noteStaffPos(note){
-  return (note.oct - 4) * 7 + note.letter - 2;
-}
-
+function noteStaffPos(note){ return (note.oct - 4) * 7 + note.letter - 2; }
 function getStringIdx(midi){
-  for(var i = OPEN_MIDS.length - 1; i >= 0; i--){
-    if(midi >= OPEN_MIDS[i]) return i;
-  }
+  for(var i = OPEN_MIDS.length - 1; i >= 0; i--){ if(midi >= OPEN_MIDS[i]) return i; }
   return 0;
 }
-
 function getStringColor(midi){ return STR_COLORS[getStringIdx(midi)]; }
-
 function getInterval(midi){
   var ref = OPEN_MIDS[getStringIdx(midi)];
   return (midi - ref) % 12;
 }
 
+function getRangeBuffer(){ return difficulty === 'easy' ? 15 : 5; }
+
 function getRange(midi){
   var iv = getInterval(midi);
   var data = INTERVALS[iv];
-  var lo = Math.min(0, data.ji, data.pyth) - RANGE_BUFFER;
-  var hi = Math.max(0, data.ji, data.pyth) + RANGE_BUFFER;
+  var buf = getRangeBuffer();
+  var lo = Math.min(0, data.ji, data.pyth) - buf;
+  var hi = Math.max(0, data.ji, data.pyth) + buf;
   var et = etFreq(midi);
   return {
     lo: lo, hi: hi,
@@ -434,9 +450,19 @@ function getRange(midi){
   };
 }
 
+function getDetectedNoteName(freq){
+  var midi = Math.round(69 + 12 * Math.log2(freq / A4));
+  var noteIdx = ((midi % 12) + 12) % 12;
+  var oct = Math.floor(midi / 12) - 1;
+  return NOTE_NAMES_SIMPLE[noteIdx] + oct;
+}
+
+function getHoldMs(){ return practiceMode === 'timeattack' ? TA_HOLD_MS : AUTO_HOLD_MS; }
+
 // ===== STATE =====
-var selectedNotes = []; // stores note objects from ALL_NOTES
+var selectedNotes = [];
 var practiceMode = 'auto';
+var difficulty = 'normal';
 var currentIdx = 0;
 var audioCtx = null, analyser = null, audioBuf = null;
 var isRunning = false;
@@ -444,6 +470,9 @@ var smoothPitch = 0, silCnt = 0;
 var holdStart = 0, isInRange = false;
 var currentScreen = 'start';
 var zoneCtx = null, staffCtx = null, zW = 0, zH = 70, sW = 0, sH = 140;
+var repeatRound = 1;
+var totalNotesCompleted = 0;
+var taStart = 0, taElapsed = 0, taRunning = false;
 
 // ===== YIN =====
 function yin(buf, sr){
@@ -521,7 +550,7 @@ function renderSelected(){
   });
   var n = selectedNotes.length;
   document.getElementById('selCount').innerHTML = '<em>' + n + '</em>/8';
-  document.getElementById('selStart').disabled = n < 4;
+  document.getElementById('selStart').disabled = n < 1;
 }
 
 // ===== CANVAS =====
@@ -546,21 +575,20 @@ function drawStaff(note){
   var LS = 12, HS = LS / 2;
   var sl = 44, sr = sW - 16, bly = sH * 0.68;
 
-  ctx.strokeStyle = '#2a2d44'; ctx.lineWidth = 1;
+  ctx.strokeStyle = '#c8cdd8'; ctx.lineWidth = 1;
   for(var i = 0; i < 5; i++){
     var y = bly - i * LS;
     ctx.beginPath(); ctx.moveTo(sl, y); ctx.lineTo(sr, y); ctx.stroke();
   }
 
-  // Clef
   var fs = LS * 5.8;
   ctx.save();
-  ctx.font = fs + 'px Times,serif'; ctx.fillStyle = '#3a4060'; ctx.textBaseline = 'alphabetic';
+  ctx.font = fs + 'px Times,serif'; ctx.fillStyle = '#8892a4'; ctx.textBaseline = 'alphabetic';
   var gLineY = bly - LS;
   var tx = sl + 4, ty = gLineY + fs * 0.36;
   var m = ctx.measureText('\uD834\uDD1E');
   if(m.width > 2) ctx.fillText('\uD834\uDD1E', tx, ty);
-  else { ctx.font = 'bold ' + (LS*1.5) + 'px serif'; ctx.fillStyle = '#334'; ctx.textBaseline = 'middle'; ctx.textAlign = 'center'; ctx.fillText('G', sl + 16, gLineY); }
+  else { ctx.font = 'bold ' + (LS*1.5) + 'px serif'; ctx.fillStyle = '#8892a4'; ctx.textBaseline = 'middle'; ctx.textAlign = 'center'; ctx.fillText('G', sl + 16, gLineY); }
   ctx.restore();
 
   if(!note) return;
@@ -569,26 +597,22 @@ function drawStaff(note){
   var ny = bly - sp * HS;
   var nr = HS * 1.3;
 
-  // Ledger lines
-  ctx.strokeStyle = '#3a3d55'; ctx.lineWidth = 1;
+  ctx.strokeStyle = '#b0b8c8'; ctx.lineWidth = 1;
   if(sp <= -2){ for(var p = -2; p >= sp; p -= 2){ var ly = bly - p * HS; ctx.beginPath(); ctx.moveTo(nx-nr*2, ly); ctx.lineTo(nx+nr*2, ly); ctx.stroke(); } }
   if(sp >= 10){ for(var p = 10; p <= sp; p += 2){ var ly = bly - p * HS; ctx.beginPath(); ctx.moveTo(nx-nr*2, ly); ctx.lineTo(nx+nr*2, ly); ctx.stroke(); } }
 
-  // Accidental
   if(note.acc !== 0){
     var accSign = note.acc === 1 ? '♯' : '♭';
-    ctx.fillStyle = '#aab'; ctx.font = 'bold ' + (LS*1.1) + 'px -apple-system,sans-serif';
+    ctx.fillStyle = '#4a5568'; ctx.font = 'bold ' + (LS*1.1) + 'px -apple-system,sans-serif';
     ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
     ctx.fillText(accSign, nx - nr - 5, ny + 1);
   }
 
-  // Note head
   var col = getStringColor(note.midi);
   ctx.save(); ctx.translate(nx, ny); ctx.rotate(-0.3);
   ctx.beginPath(); ctx.ellipse(0, 0, nr, nr * 0.72, 0, 0, Math.PI * 2);
   ctx.fillStyle = col; ctx.fill(); ctx.restore();
 
-  // Stem
   var sh = LS * 3.5;
   ctx.strokeStyle = col; ctx.lineWidth = 1.5;
   ctx.beginPath();
@@ -612,35 +636,32 @@ function drawZone(midi, detectedCents){
 
   var mx = 12, ml = mx, mr = w - mx, mw = mr - ml;
   var cy = h * 0.42, bh = 4, cx = ml + mw / 2;
-  var displayRange = 40; // ±40 cents
+  var displayRange = 40;
 
   var range = getRange(midi);
 
-  // Bar background
-  ctx.fillStyle = '#1a1d32';
+  ctx.fillStyle = '#e8eaef';
   ctx.beginPath();
   if(ctx.roundRect) ctx.roundRect(ml, cy - bh/2, mw, bh, [bh/2]);
-  else { ctx.rect(ml, cy - bh/2, mw, bh); }
+  else ctx.rect(ml, cy - bh/2, mw, bh);
   ctx.fill();
 
-  // Acceptable range highlight
   var zLoX = cx + (range.lo / displayRange) * (mw / 2);
   var zHiX = cx + (range.hi / displayRange) * (mw / 2);
-  ctx.fillStyle = '#2ecc7120';
+  ctx.fillStyle = '#4f8cff18';
   ctx.beginPath();
   if(ctx.roundRect) ctx.roundRect(zLoX, cy - 18, zHiX - zLoX, 36, [4]);
   else ctx.rect(zLoX, cy - 18, zHiX - zLoX, 36);
   ctx.fill();
-  ctx.strokeStyle = '#2ecc7140'; ctx.lineWidth = 1;
+  ctx.strokeStyle = '#4f8cff40'; ctx.lineWidth = 1;
   ctx.beginPath();
   if(ctx.roundRect) ctx.roundRect(zLoX, cy - 18, zHiX - zLoX, 36, [4]);
   else ctx.rect(zLoX, cy - 18, zHiX - zLoX, 36);
   ctx.stroke();
 
-  // Reference markers
   var refs = [
     { off: range.ji, label: '純正律', col: '#f5a623' },
-    { off: 0, label: 'ET', col: '#778' },
+    { off: 0, label: 'ET', col: '#9ca3af' },
     { off: range.pyth, label: 'ピタゴラス', col: '#4f8cff' }
   ];
   for(var i = 0; i < refs.length; i++){
@@ -655,31 +676,26 @@ function drawZone(midi, detectedCents){
     ctx.globalAlpha = 1;
   }
 
-  // Tick marks
   for(var t = -40; t <= 40; t += 10){
     var tx = ml + mw * (t + displayRange) / (displayRange * 2);
-    ctx.strokeStyle = t === 0 ? '#334' : '#1e2138'; ctx.lineWidth = 1;
+    ctx.strokeStyle = t === 0 ? '#9ca3af' : '#d1d5db'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(tx, cy - 3); ctx.lineTo(tx, cy + 3); ctx.stroke();
   }
 
-  // Edge labels
-  ctx.fillStyle = '#334'; ctx.font = '9px -apple-system,sans-serif'; ctx.textBaseline = 'bottom';
+  ctx.fillStyle = '#9ca3af'; ctx.font = '9px -apple-system,sans-serif'; ctx.textBaseline = 'bottom';
   ctx.textAlign = 'left'; ctx.fillText('♭ 低', ml, h - 2);
   ctx.textAlign = 'right'; ctx.fillText('♯ 高', mr, h - 2);
 
-  // Detected pitch dot
   if(detectedCents !== null){
     var cl = Math.max(-displayRange, Math.min(displayRange, detectedCents));
     var ix = cx + (cl / displayRange) * (mw / 2);
     var inRange = detectedCents >= range.lo && detectedCents <= range.hi;
-    var col = inRange ? '#2ecc71' : '#e74c3c';
+    var col = inRange ? '#4f8cff' : '#e74c3c';
 
-    // Glow
     var g = ctx.createRadialGradient(ix, cy, 0, ix, cy, 16);
     g.addColorStop(0, col + '55'); g.addColorStop(1, col + '00');
     ctx.fillStyle = g; ctx.fillRect(ix - 16, cy - 16, 32, 32);
 
-    // Dot
     ctx.beginPath(); ctx.arc(ix, cy, 5, 0, Math.PI * 2);
     ctx.fillStyle = col; ctx.fill();
   }
@@ -690,15 +706,43 @@ function startPractice(){
   currentIdx = 0;
   holdStart = 0;
   isInRange = false;
+  repeatRound = 1;
+  totalNotesCompleted = 0;
+  taElapsed = 0;
+  taRunning = false;
+
+  document.getElementById('taTimer').style.display = practiceMode === 'timeattack' ? 'inline' : 'none';
+  document.getElementById('taTimer').textContent = '⏱ 0.0秒';
+  document.getElementById('ppRound').style.display = practiceMode === 'repeat' ? 'block' : 'none';
+  document.getElementById('ppRound').textContent = '1周目';
+
+  if(practiceMode === 'timeattack'){
+    document.getElementById('autoLabel').textContent = '0.3秒キープで次へ！';
+  } else {
+    document.getElementById('autoLabel').textContent = '正解範囲を0.5秒キープで次へ';
+  }
+
+  document.getElementById('pracStop2').textContent =
+    (practiceMode === 'repeat' || practiceMode === 'timeattack') ? '中止して結果を見る' : '中止して選択画面へ';
+
   showScreen('practice');
   updateTarget();
+
+  if(practiceMode === 'timeattack'){
+    taStart = performance.now();
+    taRunning = true;
+    updateTimerDisplay();
+  }
+}
+
+function updateTimerDisplay(){
+  if(!taRunning) return;
+  taElapsed = performance.now() - taStart;
+  document.getElementById('taTimer').textContent = '⏱ ' + (taElapsed / 1000).toFixed(1) + '秒';
+  requestAnimationFrame(updateTimerDisplay);
 }
 
 function updateTarget(){
-  if(currentIdx >= selectedNotes.length){
-    showScreen('result');
-    return;
-  }
   var note = selectedNotes[currentIdx];
   var midi = note.midi;
   var range = getRange(midi);
@@ -709,11 +753,13 @@ function updateTarget(){
   document.getElementById('targetInfo').textContent = note.name + ' · ' + range.etHz.toFixed(1) + ' Hz (ET)';
   document.getElementById('targetRange').innerHTML = '範囲: <em>' + range.loHz.toFixed(1) + ' - ' + range.hiHz.toFixed(1) + ' Hz</em>  (' + range.ivName + ')';
 
-  // Progress
   document.getElementById('ppText').textContent = (currentIdx + 1) + '/' + selectedNotes.length;
   document.getElementById('ppFill').style.width = (currentIdx / selectedNotes.length * 100) + '%';
 
-  // Sequence dots
+  if(practiceMode === 'repeat'){
+    document.getElementById('ppRound').textContent = repeatRound + '周目';
+  }
+
   var dotsHtml = '';
   for(var i = 0; i < selectedNotes.length; i++){
     var ni = selectedNotes[i];
@@ -725,22 +771,20 @@ function updateTarget(){
   }
   document.getElementById('seqDots').innerHTML = dotsHtml;
 
-  // Staff and zone
   setTimeout(function(){
     setupStaff(); drawStaff(note);
     setupZone(); drawZone(midi, null);
   }, 30);
 
-  // Reset detection display
   document.getElementById('detectHz').textContent = '---';
   document.getElementById('detectHz').className = 'detect-hz pos-silent';
   document.getElementById('detectPos').textContent = '音を出してください';
   document.getElementById('detectPos').className = 'detect-pos pos-silent';
   document.getElementById('detectCents').textContent = '';
 
-  // Auto/confirm controls
-  document.getElementById('autoWrap').style.display = practiceMode === 'auto' ? 'block' : 'none';
-  document.getElementById('confirmBtn').style.display = practiceMode === 'confirm' ? 'block' : 'none';
+  var useAuto = practiceMode !== 'confirm';
+  document.getElementById('autoWrap').style.display = useAuto ? 'block' : 'none';
+  document.getElementById('confirmBtn').style.display = useAuto ? 'none' : 'block';
   document.getElementById('autoFill').style.width = '0%';
   document.getElementById('confirmBtn').className = 'confirm-btn ready';
   document.getElementById('confirmBtn').textContent = '次へ';
@@ -750,8 +794,60 @@ function updateTarget(){
 }
 
 function advanceNote(){
+  totalNotesCompleted++;
   currentIdx++;
+
+  if(currentIdx >= selectedNotes.length){
+    if(practiceMode === 'repeat'){
+      repeatRound++;
+      currentIdx = 0;
+    } else {
+      if(practiceMode === 'timeattack'){
+        taRunning = false;
+        taElapsed = performance.now() - taStart;
+      }
+      showResult();
+      return;
+    }
+  }
   updateTarget();
+}
+
+function showResult(){
+  showScreen('result');
+  var icon = document.getElementById('resultIcon');
+  var title = document.getElementById('resultTitle');
+  var sub = document.getElementById('resultSub');
+
+  if(practiceMode === 'timeattack'){
+    var isComplete = currentIdx >= selectedNotes.length;
+    icon.textContent = '⏱️';
+    title.textContent = (taElapsed / 1000).toFixed(1) + '秒';
+    sub.textContent = isComplete
+      ? totalNotesCompleted + '音クリア！'
+      : totalNotesCompleted + '/' + selectedNotes.length + '音（中断）';
+  } else if(practiceMode === 'repeat'){
+    var fullRounds = Math.max(0, repeatRound - 1);
+    icon.textContent = '🔄';
+    title.textContent = fullRounds + '周完了';
+    sub.textContent = totalNotesCompleted + '音練習しました';
+  } else {
+    icon.textContent = '✅';
+    title.textContent = '完了！';
+    sub.textContent = 'すべての音をクリアしました';
+  }
+}
+
+function handleStop(){
+  taRunning = false;
+  if(practiceMode === 'timeattack'){
+    taElapsed = performance.now() - taStart;
+    showResult();
+  } else if(practiceMode === 'repeat' && totalNotesCompleted > 0){
+    showResult();
+  } else {
+    showScreen('setup');
+  }
 }
 
 function updateDetection(freq){
@@ -770,7 +866,7 @@ function updateDetection(freq){
       document.getElementById('detectCents').textContent = '';
       drawZone(midi, null);
       holdStart = 0; isInRange = false;
-      if(practiceMode === 'auto') document.getElementById('autoFill').style.width = '0%';
+      if(practiceMode !== 'confirm') document.getElementById('autoFill').style.width = '0%';
     }
     return;
   }
@@ -782,11 +878,9 @@ function updateDetection(freq){
   var cents = centsFrom(smoothPitch, range.etHz);
   var inRange = cents >= range.lo && cents <= range.hi;
 
-  // Update Hz display
   document.getElementById('detectHz').textContent = smoothPitch.toFixed(1) + ' Hz';
   document.getElementById('detectCents').textContent = (cents >= 0 ? '+' : '') + cents.toFixed(1) + ' cent';
 
-  // Position
   var posText, posClass;
   if(inRange){
     if(cents < -4){ posText = '低め'; posClass = 'pos-low'; }
@@ -794,25 +888,38 @@ function updateDetection(freq){
     else { posText = 'ピアノ寄り'; posClass = 'pos-piano'; }
     document.getElementById('detectHz').className = 'detect-hz ' + posClass;
   } else {
-    if(cents < range.lo){ posText = '↑ もっと高く'; }
-    else { posText = '↓ もっと低く'; }
+    var targetMidi = midi;
+    var detectedMidi = Math.round(69 + 12 * Math.log2(smoothPitch / A4));
+    var semitoneDiff = detectedMidi - targetMidi;
+
+    if(Math.abs(semitoneDiff) >= 2){
+      var detName = getDetectedNoteName(smoothPitch);
+      if(semitoneDiff < 0){
+        posText = detName + ' → もっと高く';
+      } else {
+        posText = detName + ' → もっと低く';
+      }
+    } else {
+      if(cents < range.lo){ posText = '↑ もっと高く'; }
+      else { posText = '↓ もっと低く'; }
+    }
     posClass = 'pos-out';
     document.getElementById('detectHz').className = 'detect-hz pos-out';
   }
   document.getElementById('detectPos').textContent = posText;
   document.getElementById('detectPos').className = 'detect-pos ' + posClass;
 
-  // Zone bar
   drawZone(midi, cents);
 
-  // Auto mode logic
-  if(practiceMode === 'auto'){
+  // Auto advance for auto/repeat/timeattack
+  if(practiceMode !== 'confirm'){
+    var holdMs = getHoldMs();
     if(inRange){
       if(!isInRange){ holdStart = Date.now(); isInRange = true; }
       var elapsed = Date.now() - holdStart;
-      var pct = Math.min(100, elapsed / AUTO_HOLD_MS * 100);
+      var pct = Math.min(100, elapsed / holdMs * 100);
       document.getElementById('autoFill').style.width = pct + '%';
-      if(elapsed >= AUTO_HOLD_MS){
+      if(elapsed >= holdMs){
         advanceNote();
       }
     } else {
@@ -821,7 +928,6 @@ function updateDetection(freq){
     }
   }
 
-  // Confirm mode: update range status display only (button always enabled)
   if(practiceMode === 'confirm'){
     isInRange = inRange;
   }
@@ -884,7 +990,6 @@ function showScreen(name){
     document.getElementById(id).classList.remove('visible');
   });
   document.getElementById(name + 'Screen').classList.add('visible');
-  // Hide start screen flex
   document.getElementById('startScreen').style.display = name === 'start' ? 'flex' : 'none';
 
   if(name === 'setup'){
@@ -909,29 +1014,33 @@ document.querySelectorAll('.mode-opt').forEach(function(btn){
   });
 });
 
-// Clear selection
+// Difficulty toggle
+document.querySelectorAll('.diff-opt').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    difficulty = btn.dataset.diff;
+    document.querySelectorAll('.diff-opt').forEach(function(b){
+      b.classList.toggle('active', b.dataset.diff === difficulty);
+    });
+  });
+});
+
 document.getElementById('selClear').addEventListener('click', function(){
   selectedNotes = [];
   renderSelected();
 });
 
-// Start practice
 document.getElementById('selStart').addEventListener('click', startPractice);
 
-// Confirm next — always advances
 document.getElementById('confirmBtn').addEventListener('click', function(){
   advanceNote();
 });
 
-// Stop practice
-document.getElementById('pracStop').addEventListener('click', function(){ showScreen('setup'); });
-document.getElementById('pracStop2').addEventListener('click', function(){ showScreen('setup'); });
+document.getElementById('pracStop').addEventListener('click', handleStop);
+document.getElementById('pracStop2').addEventListener('click', handleStop);
 
-// Result actions
 document.getElementById('resultRetry').addEventListener('click', startPractice);
 document.getElementById('resultBack').addEventListener('click', function(){ showScreen('setup'); });
 
-// Resize
 window.addEventListener('resize', function(){
   if(currentScreen === 'practice'){
     setupStaff(); setupZone();
@@ -942,7 +1051,6 @@ window.addEventListener('resize', function(){
   }
 });
 
-// iOS resume
 document.addEventListener('visibilitychange', function(){
   if(audioCtx && !document.hidden) audioCtx.resume();
 });
