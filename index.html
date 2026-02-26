@@ -171,6 +171,22 @@ html,body{
   cursor:pointer;font-family:inherit;
 }
 
+/* Pass flash */
+.pass-flash{
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%) scale(.5);
+  font-size:12rem;font-weight:900;
+  color:#4f8cff;pointer-events:none;opacity:0;z-index:50;
+  text-shadow:0 0 40px rgba(79,140,255,.4);line-height:1;
+}
+.pass-flash.show{animation:passPop .55s ease-out forwards}
+@keyframes passPop{
+  0%  {opacity:0;transform:translate(-50%,-50%) scale(.3)}
+  25% {opacity:1;transform:translate(-50%,-50%) scale(1.1)}
+  50% {opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.15)}
+}
+
 /* Result */
 #resultScreen .result-content{
   flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;
@@ -188,6 +204,7 @@ html,body{
 </style>
 </head>
 <body>
+<div class="pass-flash" id="passFlash">○</div>
 <div id="app">
 
   <!-- Start Screen -->
@@ -793,7 +810,39 @@ function updateTarget(){
   isInRange = false;
 }
 
-function advanceNote(){
+function playPassSound(){
+  if(!audioCtx) return;
+  var now = audioCtx.currentTime;
+  [880,1320].forEach(function(f,i){
+    var t = now + i * 0.1;
+    var g = audioCtx.createGain();
+    g.connect(audioCtx.destination);
+    g.gain.setValueAtTime(0.1, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+    var o = audioCtx.createOscillator();
+    o.type = 'triangle';
+    o.frequency.value = f;
+    o.connect(g);
+    o.start(t);
+    o.stop(t + 0.4);
+  });
+}
+
+function showPass(){
+  var el = document.getElementById('passFlash');
+  var note = selectedNotes[currentIdx];
+  var col = note ? getStringColor(note.midi) : '#4f8cff';
+  el.style.color = col;
+  el.style.textShadow = '0 0 40px ' + col + '66';
+  el.innerHTML = '○';
+  el.classList.remove('show');
+  void el.offsetWidth;
+  el.classList.add('show');
+  playPassSound();
+}
+
+function advanceNote(passed){
+  if(passed) showPass();
   totalNotesCompleted++;
   currentIdx++;
 
@@ -920,7 +969,7 @@ function updateDetection(freq){
       var pct = Math.min(100, elapsed / holdMs * 100);
       document.getElementById('autoFill').style.width = pct + '%';
       if(elapsed >= holdMs){
-        advanceNote();
+        advanceNote(true);
       }
     } else {
       holdStart = 0; isInRange = false;
@@ -1032,7 +1081,7 @@ document.getElementById('selClear').addEventListener('click', function(){
 document.getElementById('selStart').addEventListener('click', startPractice);
 
 document.getElementById('confirmBtn').addEventListener('click', function(){
-  advanceNote();
+  advanceNote(isInRange);
 });
 
 document.getElementById('pracStop').addEventListener('click', handleStop);
