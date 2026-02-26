@@ -251,7 +251,7 @@ html,body{
         かんたん<span class="mode-desc">判定ゆるめ ±15¢</span>
       </button>
       <button class="diff-opt active" data-diff="normal">
-        ふつう<span class="mode-desc">標準 ±5¢</span>
+        ふつう<span class="mode-desc">標準 ±8¢</span>
       </button>
     </div>
 
@@ -449,7 +449,7 @@ function getInterval(midi){
   return (midi - ref) % 12;
 }
 
-function getRangeBuffer(){ return difficulty === 'easy' ? 15 : 5; }
+function getRangeBuffer(){ return difficulty === 'easy' ? 15 : 8; }
 
 function getRange(midi){
   var iv = getInterval(midi);
@@ -484,7 +484,8 @@ var currentIdx = 0;
 var audioCtx = null, analyser = null, audioBuf = null;
 var isRunning = false;
 var smoothPitch = 0, silCnt = 0;
-var holdStart = 0, isInRange = false;
+var holdStart = 0, isInRange = false, graceStart = 0;
+var GRACE_MS = 150;
 var currentScreen = 'start';
 var zoneCtx = null, staffCtx = null, zW = 0, zH = 70, sW = 0, sH = 140;
 var repeatRound = 1;
@@ -808,6 +809,7 @@ function updateTarget(){
 
   holdStart = 0;
   isInRange = false;
+  graceStart = 0;
 }
 
 function playPassSound(){
@@ -914,7 +916,7 @@ function updateDetection(freq){
       document.getElementById('detectPos').className = 'detect-pos pos-silent';
       document.getElementById('detectCents').textContent = '';
       drawZone(midi, null);
-      holdStart = 0; isInRange = false;
+      holdStart = 0; isInRange = false; graceStart = 0;
       if(practiceMode !== 'confirm') document.getElementById('autoFill').style.width = '0%';
     }
     return;
@@ -922,7 +924,7 @@ function updateDetection(freq){
 
   silCnt = 0;
   if(smoothPitch === 0 || Math.abs(centsFrom(freq, smoothPitch)) > 80) smoothPitch = freq;
-  else smoothPitch = smoothPitch * 0.7 + freq * 0.3;
+  else smoothPitch = smoothPitch * 0.6 + freq * 0.4;
 
   var cents = centsFrom(smoothPitch, range.etHz);
   var inRange = cents >= range.lo && cents <= range.hi;
@@ -964,6 +966,7 @@ function updateDetection(freq){
   if(practiceMode !== 'confirm'){
     var holdMs = getHoldMs();
     if(inRange){
+      graceStart = 0;
       if(!isInRange){ holdStart = Date.now(); isInRange = true; }
       var elapsed = Date.now() - holdStart;
       var pct = Math.min(100, elapsed / holdMs * 100);
@@ -971,8 +974,16 @@ function updateDetection(freq){
       if(elapsed >= holdMs){
         advanceNote(true);
       }
+    } else if(isInRange){
+      // 範囲内だったのが外れた → 猶予期間
+      if(!graceStart) graceStart = Date.now();
+      if(Date.now() - graceStart > GRACE_MS){
+        holdStart = 0; isInRange = false; graceStart = 0;
+        document.getElementById('autoFill').style.width = '0%';
+      }
+      // 猶予中はバーを維持（進めないが戻さない）
     } else {
-      holdStart = 0; isInRange = false;
+      holdStart = 0; graceStart = 0;
       document.getElementById('autoFill').style.width = '0%';
     }
   }
